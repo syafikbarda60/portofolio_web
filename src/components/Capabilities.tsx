@@ -5,8 +5,9 @@ import Image from "next/image";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 
-const IMG_STACK = "/projects/drift.png";
-const IMG_HARDWARE = "/projects/swadaya-panen.png";
+// Real captures under /public/work/<id>/, the same source the project pages use.
+const IMG_STACK = "/work/drift/01.jpg";
+const IMG_HARDWARE = "/work/swadaya-panen/01.jpg";
 
 function Tag({ children }: { children: React.ReactNode }) {
   return (
