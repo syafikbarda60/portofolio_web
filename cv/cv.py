@@ -21,7 +21,10 @@ import os
 NAME = "Syafik Barda"
 TAGLINE = "Computer Engineering Student | Full-Stack & IoT Developer"
 CONTACT = ["Semarang, Indonesia", "+62 838-6919-3470", "syafikbarda60@gmail.com"]
-GITHUB = "https://github.com/syafikbarda60"
+LINKS = [
+    ("github.com/syafikbarda60", "https://github.com/syafikbarda60"),
+    ("portofolio-web-five-hazel.vercel.app", "https://portofolio-web-five-hazel.vercel.app/"),
+]
 
 SUMMARY = (
     "Computer Engineering undergraduate at Diponegoro University (GPA 3.85/4.00) with a portfolio "
@@ -278,9 +281,9 @@ def build_tex(path):
     L.append(r"\begin{center}")
     L.append(r"{\LARGE\bfseries " + tex(NAME) + r"}\\[0.35em]")
     L.append(r"{\small " + tex(TAGLINE) + r"}\\[0.25em]")
-    line = r" $\cdot$ ".join(tex(c) for c in CONTACT)
-    line += r" $\cdot$ \href{%s}{%s}" % (GITHUB, tex(GITHUB.split("//")[1]))
-    L.append(r"{\small " + line + "}")
+    L.append(r"{\small " + r" $\cdot$ ".join(tex(c) for c in CONTACT) + r"}\\[0.25em]")
+    links = r" $\cdot$ ".join(r"\href{%s}{%s}" % (url, tex(label)) for label, url in LINKS)
+    L.append(r"{\small " + links + "}")
     L.append(r"\end{center}")
     L.append("")
     L.append(r"\section{Summary}")
@@ -381,8 +384,8 @@ def build_docx(path):
     p = para(space_after=2)
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run(p, NAME, bold=True, size=20)
-    contact = "  ·  ".join(CONTACT + [GITHUB.split("//")[1]])
-    for line in (TAGLINE, contact):
+    links = "  ·  ".join(label for label, _ in LINKS)
+    for line in (TAGLINE, "  ·  ".join(CONTACT), links):
         p = para(space_after=1)
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         run(p, line, size=9.5)
