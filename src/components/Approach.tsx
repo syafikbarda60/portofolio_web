@@ -10,7 +10,7 @@ const STATEMENT =
   "Good engineering is invisible. I care about the seams nobody sees: the query that stays fast at scale, the sensor that keeps reporting after the rain, the interface a stranger understands without being told.";
 
 const STATEMENT_CLASS =
-  "type-title text-[clamp(1.6rem,3.4vw,2.9rem)] leading-[1.22] text-fg";
+  "type-title text-center text-[clamp(2.2rem,5vw,4rem)] leading-[1.22] text-fg";
 
 const FIGURES = [
   { to: 8, suffix: "", label: "Projects shipped across web, IoT, and ML" },
@@ -25,7 +25,7 @@ export function Approach() {
   return (
     <section id="about" className="relative py-24 sm:py-36">
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
-        <div className="max-w-4xl">
+        <div className="mx-auto max-w-5xl text-center">
           {reduceMotion ? (
             <p className={STATEMENT_CLASS}>{STATEMENT}</p>
           ) : (
@@ -38,7 +38,7 @@ export function Approach() {
               rotationEnd="bottom 68%"
               wordAnimationEnd="bottom 64%"
               containerClassName="!my-0"
-              textClassName="!type-title !text-[clamp(1.6rem,3.4vw,2.9rem)] !leading-[1.22] !text-fg"
+              textClassName="!type-title text-center !text-[clamp(2.2rem,5vw,4rem)] !leading-[1.22] !text-fg"
             >
               {STATEMENT}
             </ScrollReveal>
