@@ -154,6 +154,16 @@ PROJECTS = [
         tech="Python, CNN, Thermal Vision, ESP32 / C++, Raspberry Pi, Next.js, PostgreSQL",
     ),
     entry(
+        ("HIMASKOM Company Profile Website", "2026"),
+        bullets=[
+            "Designed and developed the official website for HIMASKOM UNDIP, presenting the association "
+            "vision, work programs, division structure, and activities to prospective and current members.",
+            "Modelled the organizational hierarchy, article index, and merchandise store as one typed data "
+            "module so internal staff can keep the site current with minimal technical effort.",
+        ],
+        tech="Next.js, React, TypeScript, CSS Modules, GSAP, Lenis",
+    ),
+    entry(
         ("Swadaya Panen - IoT-Based Rice Field Monitoring System", "2025"),
         bullets=[
             "Designed an integrated IoT system for precision farming, engineering multi-sensor field nodes "
@@ -183,16 +193,6 @@ PROJECTS = [
             "plus on-device caching so the ledger stays readable offline.",
         ],
         tech="React Native, Expo, TypeScript, Supabase, Express.js, Chart Kit",
-    ),
-    entry(
-        ("HIMASKOM Company Profile Website", "2024"),
-        bullets=[
-            "Designed and developed the official website for HIMASKOM UNDIP, presenting the association "
-            "vision, work programs, division structure, and activities to prospective and current members.",
-            "Modelled the organizational hierarchy, article index, and merchandise store as one typed data "
-            "module so internal staff can keep the site current with minimal technical effort.",
-        ],
-        tech="Next.js, React, TypeScript, CSS Modules, GSAP, Lenis",
     ),
 ]
 

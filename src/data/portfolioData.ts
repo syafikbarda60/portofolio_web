@@ -215,7 +215,7 @@ export const PROJECTS: ProjectItem[] = [
     shots: ["/work/himaskom-profile/01.jpg", "/work/himaskom-profile/02.jpg", "/work/himaskom-profile/03.jpg", "/work/himaskom-profile/04.jpg", "/work/himaskom-profile/05.jpg"],
     title: "HIMASKOM Official Web Portal",
     subtitle: "Student Association Digital Hub & Archive",
-    year: "2024",
+    year: "2026",
     category: "Full-Stack Web",
     description:
       "Official website and organization portal for the Diponegoro University Computer Engineering Student Association.",
