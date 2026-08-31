@@ -264,11 +264,11 @@ export const EXPERIENCES: ExperienceItem[] = [
   {
     company: "HIMASKOM Diponegoro University",
     role: "Chief of Organizational Management & Development Unit",
-    period: "Mar 2024 - Present",
+    period: "Mar 2025 - Jun 2026",
     location: "Semarang, Indonesia",
     type: "Organizational Leadership",
     summary:
-      "Direct the governance, performance oversight, and organizational growth for the Computer Engineering Student Association.",
+      "Directed the governance, performance oversight, and organizational growth for the Computer Engineering Student Association across a full term.",
     achievements: [
       "Pioneered a major structural reform by founding the Monitoring and Upgrading Division to systematically evaluate and elevate member performance.",
       "Served as Head of Evaluation and Achievement Division, establishing KPI assessment frameworks across all units in HIMASKOM 24.",

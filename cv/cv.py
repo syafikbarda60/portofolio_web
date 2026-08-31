@@ -27,8 +27,8 @@ SUMMARY = (
     "Computer Engineering undergraduate at Diponegoro University (GPA 3.85/4.00) with a portfolio "
     "spanning full-stack web platforms, IoT telemetry systems, and applied machine learning. "
     "Experienced shipping production systems for both an industry client and university organizations, "
-    "from Laravel and Next.js applications to solar-powered sensor nodes. Currently Chief of the "
-    "Organizational Management and Development Unit at HIMASKOM, responsible for overseeing and "
+    "from Laravel and Next.js applications to solar-powered sensor nodes. Served a full term as Chief "
+    "of the Organizational Management and Development Unit at HIMASKOM, responsible for overseeing and "
     "evaluating the performance of the entire student association. Combining technical depth with "
     "organizational leadership, I am committed to delivering impactful contributions in dynamic "
     "engineering environments."
@@ -72,7 +72,7 @@ ORGANIZATIONAL = [
     entry(
         ("HIMASKOM - Diponegoro University", "Semarang, Indonesia"),
         [
-            ("Chief of Organizational Management and Development Unit", "Mar 2024 - Present"),
+            ("Chief of Organizational Management and Development Unit", "Mar 2025 - Jun 2026"),
             ("Staff of Organizational Management and Development Unit", "Sep 2023 - Mar 2024"),
         ],
         [

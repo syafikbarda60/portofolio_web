@@ -78,8 +78,8 @@ export function Capabilities() {
                 </h3>
                 <p className="mt-4 text-sm leading-relaxed text-fg-2">
                   Chief of the Organisational Management and Development Unit at
-                  HIMASKOM UNDIP. Structural reform, KPI frameworks, and mentoring
-                  division leads through a full cycle.
+                  HIMASKOM UNDIP for the 2025/26 term. Structural reform, KPI
+                  frameworks, and mentoring division leads through a full cycle.
                 </p>
               </div>
               <p className="mt-8 border-t border-line pt-6 text-sm text-fg-2">
