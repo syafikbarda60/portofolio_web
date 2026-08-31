@@ -1,0 +1,246 @@
+@import "tailwindcss";
+
+/* ============================================================
+   TOKENS
+
+   Palette: cool neutral graphite + bone + one saturated signal
+   orange. Deliberately rotated away from the warm champagne /
+   brass family, which is the default reach for "luxury" and makes
+   every such page look like the same page.
+
+   Shape lock: buttons and pills are full-round. Every other
+   surface (cards, images, inputs, media) is square, radius 0.
+
+   Theme lock: one theme for the whole page. Follows the OS by
+   default, overridable with data-theme on <html>.
+   ============================================================ */
+
+:root {
+  --bg: #0b0b0c;
+  --surface: #141416;
+  --surface-2: #1c1c1f;
+  --fg: #f4f3f1;
+  --fg-2: #a8a8a4;
+  --fg-3: #85857f;
+  --line: rgb(244 243 241 / 0.1);
+  --line-strong: rgb(244 243 241 / 0.2);
+  --accent: #ff4d2e;
+  --accent-text: #ff4d2e;
+  --accent-ink: #0b0b0c;
+  --accent-wash: rgb(255 77 46 / 0.12);
+  /* Brand marks are fetched white; light mode flips them. */
+  --logo-filter: none;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f5f4f1;
+    --surface: #ffffff;
+    --surface-2: #eceae5;
+    --fg: #131315;
+    --fg-2: #5a5a57;
+    --fg-3: #6e6e6a;
+    --line: rgb(19 19 21 / 0.12);
+    --line-strong: rgb(19 19 21 / 0.24);
+    --accent: #c4300f;
+    --accent-text: #c4300f;
+    --accent-ink: #ffffff;
+    --accent-wash: rgb(196 48 15 / 0.1);
+    --logo-filter: invert(1);
+    color-scheme: light;
+  }
+}
+
+:root[data-theme="light"] {
+  --bg: #f5f4f1;
+  --surface: #ffffff;
+  --surface-2: #eceae5;
+  --fg: #131315;
+  --fg-2: #5a5a57;
+  --fg-3: #6e6e6a;
+  --line: rgb(19 19 21 / 0.12);
+  --line-strong: rgb(19 19 21 / 0.24);
+  --accent: #c4300f;
+  --accent-text: #c4300f;
+  --accent-ink: #ffffff;
+  --accent-wash: rgb(196 48 15 / 0.1);
+  --logo-filter: invert(1);
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-fg-3: var(--fg-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
+  --color-accent-ink: var(--accent-ink);
+
+  --font-display: var(--font-bricolage), "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
+
+  --radius-none: 0px;
+}
+
+@layer base {
+  /* No scroll-behavior: smooth. Lenis owns scrolling; see SmoothScroll.tsx */
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@layer components {
+  /* Bricolage is variable on width and optical size. Pulling the width
+     in and the optical size up is what gives the display type its
+     compressed, editorial proportion. */
+  .type-display {
+    font-family: var(--font-display);
+    font-variation-settings: "wdth" 82, "opsz" 96;
+    font-weight: 600;
+    line-height: 0.88;
+    letter-spacing: -0.035em;
+  }
+
+  .type-section {
+    font-family: var(--font-display);
+    font-variation-settings: "wdth" 88, "opsz" 72;
+    font-weight: 600;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    font-size: clamp(2.1rem, 5vw, 4rem);
+  }
+
+  .type-title {
+    font-family: var(--font-display);
+    font-variation-settings: "wdth" 92, "opsz" 40;
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+  }
+
+  .type-lead {
+    font-size: clamp(1rem, 1.25vw, 1.15rem);
+    line-height: 1.6;
+    color: var(--fg-2);
+    max-width: 54ch;
+  }
+
+  .type-data {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    color: var(--fg-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Shape lock, made explicit so it is hard to break by accident. */
+  .pill {
+    border-radius: 9999px;
+  }
+
+  /* Every photograph on the page is desaturated. It keeps the accent the
+     only colour in the composition, and it is what stops mixed-source
+     photography from fighting the palette. */
+  .photo {
+    filter: grayscale(1) contrast(1.08) brightness(0.9);
+  }
+
+  :root[data-theme="light"] .photo {
+    filter: grayscale(1) contrast(1.04) brightness(1.02);
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) .photo {
+      filter: grayscale(1) contrast(1.04) brightness(1.02);
+    }
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border: 3px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* The native <dialog> already gives us the backdrop, the focus trap and the
+   Esc key. Only the entrance is left to write. */
+dialog::backdrop {
+  background: rgb(0 0 0 / 0.62);
+  backdrop-filter: blur(3px);
+}
+
+dialog[open] {
+  animation: dialog-in 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+dialog[open]::backdrop {
+  animation: dialog-backdrop-in 0.45s ease;
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+}
+
+@keyframes dialog-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
