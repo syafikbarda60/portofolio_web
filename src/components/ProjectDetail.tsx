@@ -1,13 +1,14 @@
 "use client";
 
 import React from "react";
+import { motion } from "motion/react";
 import Link from "next/link";
 import { ArrowLeft, ArrowUpRight, ArrowRight } from "@phosphor-icons/react";
 import { Reveal } from "@/components/ui/Reveal";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { useMediaQuery } from "@/lib/useMediaQuery";
-import SplitText from "@/components/reactbits/SplitText";
 import AccordionGallery from "@/components/reactbits/AccordionGallery";
+import SplitText from "@/components/reactbits/SplitText";
 import ScrollReveal from "@/components/reactbits/ScrollReveal";
 import Magnet from "@/components/reactbits/Magnet";
 import type { ProjectItem } from "@/data/portfolioData";
@@ -41,7 +42,7 @@ export function ProjectDetail({
   return (
     <article className="relative pb-24 pt-32 sm:pb-36 sm:pt-40">
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
-        <Reveal distance={24} duration={0.7} ease="power3.out">
+        <Reveal distance={24}>
           <Link
             href="/#projects"
             className="type-data inline-flex min-h-11 items-center gap-2 text-fg-2 transition-colors hover:text-accent-text"
@@ -53,7 +54,7 @@ export function ProjectDetail({
 
         <header className="mt-10">
           {reduceMotion ? (
-            <h1 className="type-display text-[clamp(2.6rem,7vw,5.5rem)] text-fg">
+            <h1 className="type-display text-[clamp(2.4rem,6vw,4.75rem)] text-fg">
               {project.title}
             </h1>
           ) : (
@@ -66,18 +67,18 @@ export function ProjectDetail({
               ease="power3.out"
               from={{ opacity: 0, y: 60 }}
               to={{ opacity: 1, y: 0 }}
-              className="type-display text-[clamp(2.6rem,7vw,5.5rem)] text-fg"
+              className="type-display text-[clamp(2.4rem,6vw,4.75rem)] text-fg"
             />
           )}
 
-          <Reveal distance={26} duration={0.8} ease="power3.out" delay={0.1}>
+          <Reveal distance={26} delay={0.1}>
             <p className="type-lead mt-6 max-w-2xl">{project.subtitle}</p>
           </Reveal>
         </header>
 
         {/* Gallery. Hover expands on pointer devices; touch has no hover, so
             it falls back to tap-to-expand. */}
-        <Reveal distance={40} duration={0.95} ease="power3.out" delay={0.16}>
+        <Reveal distance={40} delay={0.16}>
           <div className="mt-14">
             <AccordionGallery
               items={getProjectGallery(project)}
@@ -93,6 +94,9 @@ export function ProjectDetail({
                  Changed per user request to display colored images. */
               grayscale={false}
               className=""
+              // Numbered "01, 02" captions with a glowing bar read as
+              // pagination chrome; the accordion motion carries it alone.
+              showLabels={false}
               accentColor="var(--accent)"
               overlayColor="var(--bg)"
               textColor="var(--fg)"
@@ -104,8 +108,6 @@ export function ProjectDetail({
           {/* Facts rail */}
           <Reveal
             distance={32}
-            duration={0.85}
-            ease="power3.out"
             className="lg:col-span-4"
           >
             <dl className="grid gap-6 sm:grid-cols-2 lg:sticky lg:top-28 lg:grid-cols-1">
@@ -136,69 +138,59 @@ export function ProjectDetail({
               </ScrollReveal>
             )}
 
-            <Reveal distance={32} duration={0.85} ease="power3.out">
+            <Reveal distance={32}>
               <section className="mt-20">
-                <h2 className="type-data border-b border-line pb-5">
+                <h2 className="type-title border-b border-line pb-4 text-xl text-fg">
                   What it took
                 </h2>
-                <ol className="mt-8 grid gap-8">
-                  {project.highlights.map((item, i) => (
-                    <li key={item} className="flex gap-6">
-                      <span className="type-data shrink-0 pt-1 text-accent-text">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <p className="max-w-2xl text-[15px] leading-relaxed text-fg-2">
-                        {item}
-                      </p>
-                    </li>
-                  ))}
-                </ol>
-              </section>
-            </Reveal>
-
-            <Reveal distance={32} duration={0.85} ease="power3.out">
-              <section className="mt-20">
-                <h2 className="type-data border-b border-line pb-5">Stack</h2>
-                <ul className="mt-8 flex flex-wrap gap-2">
-                  {project.techStack.map((tech) => (
-                    <li
-                      key={tech}
-                      className="pill border border-line px-4 py-2 font-mono text-[12px] text-fg-2"
-                    >
-                      {tech}
+                <ul className="mt-8 grid list-disc gap-6 pl-4 marker:text-accent-text">
+                  {project.highlights.map((item) => (
+                    <li key={item} className="max-w-2xl pl-1 text-[15px] leading-relaxed text-fg-2">
+                      {item}
                     </li>
                   ))}
                 </ul>
               </section>
             </Reveal>
 
+            <Reveal distance={32}>
+              <section className="mt-20">
+                <h2 className="type-title border-b border-line pb-4 text-xl text-fg">Stack</h2>
+                <p className="mt-8 max-w-2xl text-[15px] leading-relaxed text-fg">
+                  {project.techStack.join(", ")}
+                </p>
+              </section>
+            </Reveal>
+
             {(project.liveUrl || project.githubUrl) && (
-              <Reveal distance={28} duration={0.8} ease="power3.out">
+              <Reveal distance={28}>
                 <div className="mt-16 flex flex-wrap gap-3">
                   {project.liveUrl && (
                     <Magnet padding={70} magnetStrength={5} disabled={reduceMotion}>
-                      <a
-                        href={project.liveUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="pill group inline-flex min-h-11 items-center gap-2.5 bg-fg px-7 text-sm font-medium text-bg transition-colors hover:bg-accent hover:text-accent-ink"
-                      >
-                        Visit live site
-                        <ArrowUpRight size={16} weight="bold" />
-                      </a>
+                      <motion.a
+                        whileTap={{ scale: 0.97 }}
+                          href={project.liveUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="pill group inline-flex min-h-11 items-center gap-2.5 bg-fg px-7 text-sm font-medium text-bg transition-colors hover:bg-accent hover:text-accent-ink"
+                        >
+                          Visit live site
+                          <ArrowUpRight size={16} weight="bold" />
+                        </motion.a>
                     </Magnet>
                   )}
                   {project.githubUrl && (
                     <Magnet padding={70} magnetStrength={5} disabled={reduceMotion}>
-                      <a
-                        href={project.githubUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="pill inline-flex min-h-11 items-center gap-2.5 border border-line-strong px-7 text-sm font-medium text-fg transition-colors hover:border-accent hover:text-accent-text"
-                      >
-                        Source code
-                        <ArrowUpRight size={16} weight="bold" />
-                      </a>
+                      <motion.a
+                        whileTap={{ scale: 0.97 }}
+                          href={project.githubUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="pill inline-flex min-h-11 items-center gap-2.5 border border-line-strong px-7 text-sm font-medium text-fg transition-colors hover:border-accent hover:text-accent-text"
+                        >
+                          Source code
+                          <ArrowUpRight size={16} weight="bold" />
+                        </motion.a>
                     </Magnet>
                   )}
                 </div>

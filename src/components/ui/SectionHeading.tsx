@@ -22,7 +22,7 @@ export function SectionHeading({
   className,
 }: SectionHeadingProps) {
   return (
-    <Reveal distance={36} duration={0.85} ease="power3.out" threshold={0.15}>
+    <Reveal distance={36}>
       <div className={cn("mb-14 sm:mb-20", className)}>
         <h2 className="type-section max-w-[16ch] text-fg">{title}</h2>
         {lead && <p className="type-lead mt-6">{lead}</p>}

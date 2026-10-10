@@ -2,7 +2,6 @@
 
 import React from "react";
 import Noise from "@/components/reactbits/Noise";
-import { useReducedMotion } from "@/lib/useReducedMotion";
 
 /**
  * Page ground: a faint structural grid plus film grain.
@@ -11,8 +10,6 @@ import { useReducedMotion } from "@/lib/useReducedMotion";
  * scrolling container, which is what kills frame rate on mobile.
  */
 export function Ambient() {
-  const reduceMotion = useReducedMotion();
-
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
       <div className="absolute inset-0 bg-bg" />
@@ -30,12 +27,11 @@ export function Ambient() {
         }}
       />
 
-      {/* The grain is animated, so it is dropped under reduced motion. */}
-      {!reduceMotion && (
-        <div className="absolute inset-0 opacity-50 mix-blend-overlay">
-          <Noise patternRefreshInterval={8} patternAlpha={12} />
-        </div>
-      )}
+      {/* Static grain, no blend mode: either one alone forces a full-viewport
+          repaint on every scrolled frame. */}
+      <div className="absolute inset-0 opacity-40">
+        <Noise patternRefreshInterval={0} patternAlpha={10} />
+      </div>
     </div>
   );
 }

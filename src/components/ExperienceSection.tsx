@@ -20,8 +20,8 @@ export function ExperienceSection() {
     <section id="experience" className="relative py-24 sm:py-36">
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
         <SectionHeading
-          title="Where the lessons came from"
-          lead="Software delivery, IT infrastructure operations, and student association governance. The work that taught me how systems and people actually fail."
+          title="Experience"
+          lead="Software delivery, IT operations, and running a student association."
           action={
             <div
               role="tablist"
@@ -69,8 +69,6 @@ export function ExperienceSection() {
               <Reveal
                 key={`${exp.company}-${index}`}
                 distance={36}
-                duration={0.8}
-                ease="power3.out"
                 delay={index * 0.06}
               >
                 <article className="grid grid-cols-1 gap-8 border-t border-line py-12 lg:grid-cols-12 lg:gap-12">
@@ -88,29 +86,17 @@ export function ExperienceSection() {
                       {exp.summary}
                     </p>
 
-                    <ul className="mt-8 grid gap-5">
+                    <ul className="mt-8 grid list-disc gap-4 pl-4 marker:text-fg-3">
                       {exp.achievements.map((item, i) => (
-                        <li key={i} className="flex gap-5 text-sm leading-relaxed text-fg-2">
-                          <span className="type-data shrink-0 pt-0.5">
-                            {String(i + 1).padStart(2, "0")}
-                          </span>
-                          <span className="max-w-xl">{item}</span>
+                        <li key={i} className="max-w-xl pl-1 text-sm leading-relaxed text-fg-2">
+                          {item}
                         </li>
                       ))}
                     </ul>
                   </div>
 
                   <div className="lg:col-span-3">
-                    <div className="flex flex-wrap gap-1.5">
-                      {exp.skills.map((skill) => (
-                        <span
-                          key={skill}
-                          className="pill border border-line px-3 py-1.5 font-mono text-[11px] text-fg-3"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
+                    <p className="type-data leading-relaxed">{exp.skills.join(", ")}</p>
                   </div>
                 </article>
               </Reveal>

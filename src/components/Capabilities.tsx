@@ -1,138 +1,205 @@
 "use client";
 
-import React from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
+import {
+  motion,
+  useScroll,
+  useSpring,
+  useTransform,
+  type MotionValue,
+} from "motion/react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 
 // Real captures under /public/work/<id>/, the same source the project pages use.
 const IMG_STACK = "/work/drift/01.jpg";
 const IMG_HARDWARE = "/work/swadaya-panen/01.jpg";
+const IMG_LEAD = "/work/himaskom-profile/01.jpg";
 
-function Tag({ children }: { children: React.ReactNode }) {
+type Panel = {
+  title: string;
+  body: string;
+  meta: string;
+  image?: string;
+};
+
+const PANELS: Panel[] = [
+  {
+    title: "Full-stack and backend",
+    body: "High-throughput apps on Next.js, React, Node, and Laravel. Secure auth, WebSocket channels, versioned REST contracts, and normalised relational schemas.",
+    meta: "Next.js, TypeScript, Laravel, MySQL",
+    image: IMG_STACK,
+  },
+  {
+    title: "Sensors, firmware, and models",
+    body: "Microcontroller firmware for agricultural telemetry, thermal imaging CNNs for pest detection, and search-and-rescue robotics research at URDC Andromeda.",
+    meta: "Swadaya Panen, NPK Analyzer, Rat Detection",
+    image: IMG_HARDWARE,
+  },
+  {
+    title: "Leading a student association",
+    body: "Chief of the Organisational Management and Development Unit at HIMASKOM UNDIP for the 2025/26 term. Structural reform, KPI frameworks, and mentoring division leads through a full cycle.",
+    meta: "Chief, OM&D Unit, HIMASKOM",
+    image: IMG_LEAD,
+  },
+];
+
+const TITLE = "What I work on";
+const LEAD = "Three areas where the work has run in front of real users or out in the field.";
+
+function PanelCard({ panel }: { panel: Panel }) {
   return (
-    <span className="pill border border-line-strong px-3 py-1.5 font-mono text-[11px] text-fg-2">
-      {children}
-    </span>
+    <article className="relative flex h-full flex-col justify-end overflow-hidden border border-line bg-surface p-7 sm:p-10">
+      {panel.image && (
+        <>
+          <Image
+            src={panel.image}
+            alt=""
+            fill
+            sizes="(max-width: 768px) 88vw, 62vw"
+            className="photo object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/80 to-bg/20" />
+        </>
+      )}
+      <div className="relative">
+        <h3 className="type-title text-[clamp(1.6rem,3vw,2.6rem)] text-fg">{panel.title}</h3>
+        <p className="mt-4 max-w-lg text-sm leading-relaxed text-fg-2 sm:text-[15px]">
+          {panel.body}
+        </p>
+        <p className="type-data mt-6 text-fg-2">{panel.meta}</p>
+      </div>
+    </article>
+  );
+}
+
+/**
+ * One card on the horizontal track. Its 3D pose comes from how far its centre
+ * sits from the viewport centre: cards turn away as they leave and face the
+ * reader in the middle, and their copy rises in as they arrive.
+ */
+function TrackCard({
+  panel,
+  x,
+  viewport,
+}: {
+  panel: Panel;
+  x: MotionValue<number>;
+  viewport: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const centre = useRef(0);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    centre.current = el.offsetLeft + el.offsetWidth / 2;
+  }, [viewport]);
+
+  // -1 = one viewport to the left of centre, 0 = centred, 1 = one to the right.
+  const d = useTransform(x, (v) =>
+    viewport ? (centre.current + v - viewport / 2) / viewport : 1
+  );
+  const rotateY = useTransform(d, [-1, 0, 1], [32, 0, -32]);
+  const scale = useTransform(d, [-1, 0, 1], [0.84, 1, 0.84]);
+  const z = useTransform(d, [-1, 0, 1], [-220, 0, -220]);
+  const opacity = useTransform(d, [-1.1, -0.6, 0, 0.6, 1.1], [0, 0.55, 1, 0.55, 0]);
+  const contentOpacity = useTransform(d, [0.45, 0.1], [0, 1]);
+  const contentY = useTransform(d, [0.45, 0.1], [36, 0]);
+
+  return (
+    <motion.div
+      ref={ref}
+      style={{ rotateY, scale, z, opacity }}
+      className="h-[min(68dvh,40rem)] w-[86vw] shrink-0 md:w-[62vw] lg:w-[min(58vw,62rem)]"
+    >
+      <motion.div style={{ opacity: contentOpacity, y: contentY }} className="h-full">
+        <PanelCard panel={panel} />
+      </motion.div>
+    </motion.div>
   );
 }
 
 export function Capabilities() {
-  return (
-    <section id="focus" className="relative py-24 sm:py-36">
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
-        <SectionHeading
-          title="What I actually do"
-          lead="Three areas where I have shipped real work, not coursework. Everything below has run in front of users or in the field."
-        />
+  const reduceMotion = useReducedMotion();
+  const section = useRef<HTMLElement>(null);
+  const track = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState({ distance: 0, viewport: 0, height: 0 });
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-          {/* Full-stack: photographic ground */}
-          <Reveal distance={44} duration={0.9} ease="power3.out" className="lg:col-span-7">
-            <article className="relative flex h-full min-h-[26rem] flex-col justify-end overflow-hidden p-8 sm:p-10">
-              <Image
-                src={IMG_STACK}
-                alt=""
-                fill
-                sizes="(max-width: 1024px) 100vw, 58vw"
-                className="photo object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/85 to-bg/40" />
-              <div className="relative">
-                <h3 className="type-title text-[clamp(1.5rem,2.4vw,2.1rem)] text-fg">
-                  Full-stack and backend
-                </h3>
-                <p className="mt-4 max-w-md text-sm leading-relaxed text-fg-2">
-                  High-throughput apps on Next.js, React, Node, and Laravel. Secure
-                  auth, WebSocket channels, versioned REST contracts, and normalised
-                  relational schemas.
-                </p>
-                <div className="mt-7 flex flex-wrap gap-1.5">
-                  <Tag>Next.js</Tag>
-                  <Tag>TypeScript</Tag>
-                  <Tag>Laravel</Tag>
-                  <Tag>MySQL</Tag>
-                </div>
-              </div>
-            </article>
-          </Reveal>
+  // The section is as tall as the horizontal travel, so one pixel scrolled
+  // down moves the track one pixel sideways.
+  useLayoutEffect(() => {
+    if (reduceMotion) return;
+    const measure = () => {
+      const t = track.current;
+      if (!t) return;
+      // Travel until the last card sits in the middle of the viewport.
+      const last = t.lastElementChild as HTMLElement | null;
+      const end = last ? last.offsetLeft + last.offsetWidth / 2 : t.scrollWidth;
+      const distance = Math.max(0, end - window.innerWidth / 2);
+      setSize({ distance, viewport: window.innerWidth, height: window.innerHeight });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (track.current) ro.observe(track.current);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [reduceMotion]);
 
-          {/* Governance: tinted ground, no photograph */}
-          <Reveal
-            distance={44}
-            duration={0.9}
-            delay={0.08}
-            ease="power3.out"
-            className="lg:col-span-5"
-          >
-            <article
-              className="flex h-full min-h-[26rem] flex-col justify-between border border-line p-8 sm:p-10"
-              style={{
-                background:
-                  "linear-gradient(155deg, var(--accent-wash), transparent 62%), var(--surface)",
-              }}
-            >
-              <div>
-                <h3 className="type-title text-[clamp(1.5rem,2.4vw,2.1rem)] text-fg">
-                  Running the room
-                </h3>
-                <p className="mt-4 text-sm leading-relaxed text-fg-2">
-                  Chief of the Organisational Management and Development Unit at
-                  HIMASKOM UNDIP for the 2025/26 term. Structural reform, KPI
-                  frameworks, and mentoring division leads through a full cycle.
-                </p>
-              </div>
-              <p className="mt-8 border-t border-line pt-6 text-sm text-fg-2">
-                <span className="text-fg">Chief, OM&amp;D Unit</span>
-                <br />
-                HIMASKOM, Diponegoro University
-              </p>
-            </article>
-          </Reveal>
+  const { scrollYProgress } = useScroll({
+    target: section,
+    offset: ["start start", "end end"],
+  });
+  // A light spring on top of Lenis keeps the 3D turn from tracking every
+  // wheel tick one-to-one.
+  const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 30, mass: 0.4 });
+  const x = useTransform(progress, (p) => -p * size.distance);
 
-          {/* Hardware: wide split, image on the right */}
-          <Reveal
-            distance={44}
-            duration={0.9}
-            delay={0.12}
-            ease="power3.out"
-            className="lg:col-span-12"
-          >
-            <article className="grid min-h-[22rem] grid-cols-1 border border-line lg:grid-cols-2">
-              <div className="flex flex-col justify-center p-8 sm:p-12">
-                <h3 className="type-title text-[clamp(1.5rem,2.4vw,2.1rem)] text-fg">
-                  Sensors, firmware, and models
-                </h3>
-                <p className="mt-4 max-w-lg text-sm leading-relaxed text-fg-2">
-                  Microcontroller firmware for agricultural telemetry, thermal imaging
-                  CNNs for pest detection, and search-and-rescue robotics research at
-                  URDC Andromeda.
-                </p>
-                <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
-                  {[
-                    { k: "Swadaya Panen", v: "Field telemetry" },
-                    { k: "NPK Analyzer", v: "Soil nutrients" },
-                    { k: "Rat Detection", v: "Thermal vision" },
-                  ].map((cell) => (
-                    <div key={cell.k} className="border-t border-line pt-4">
-                      <span className="block text-sm text-fg">{cell.k}</span>
-                      <span className="mt-1 block text-[13px] text-fg-3">{cell.v}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="relative min-h-[16rem] lg:min-h-full">
-                <Image
-                  src={IMG_HARDWARE}
-                  alt=""
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="photo object-cover"
-                />
-              </div>
-            </article>
-          </Reveal>
+  if (reduceMotion) {
+    return (
+      <section id="focus" className="relative py-24 sm:py-36">
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
+          <SectionHeading title={TITLE} lead={LEAD} />
+          <div className="grid gap-4">
+            {PANELS.map((panel) => (
+              <Reveal key={panel.title} className="h-[26rem]">
+                <PanelCard panel={panel} />
+              </Reveal>
+            ))}
+          </div>
         </div>
+      </section>
+    );
+  }
+
+  return (
+    <section
+      ref={section}
+      id="focus"
+      className="relative"
+      style={{ height: size.height ? size.distance + size.height : "300vh" }}
+    >
+      <div className="sticky top-0 flex h-[100dvh] flex-col justify-center overflow-hidden [perspective:1400px]">
+        <motion.div
+          ref={track}
+          style={{ x }}
+          className="flex items-center gap-[4vw] pl-4 [transform-style:preserve-3d] sm:pl-6 lg:pl-10"
+        >
+          {/* Intro sits flat on the track and slides away first. */}
+          <div className="w-[80vw] shrink-0 md:w-[34vw]">
+            <h2 className="type-section max-w-[12ch] text-fg">{TITLE}</h2>
+            <p className="type-lead mt-6">{LEAD}</p>
+          </div>
+
+          {PANELS.map((panel) => (
+            <TrackCard key={panel.title} panel={panel} x={x} viewport={size.viewport} />
+          ))}
+        </motion.div>
       </div>
     </section>
   );

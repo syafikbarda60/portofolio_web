@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { useLenis } from "lenis/react";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "motion/react";
 import { usePathname } from "next/navigation";
 import { List, X, ArrowUpRight } from "@phosphor-icons/react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
@@ -25,14 +24,10 @@ export function Navbar() {
   const [active, setActive] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
 
-  useLenis((lenis) => setScrolled(lenis.scroll > 24));
-
-  // Fallback for reduced-motion visits, where Lenis is not mounted.
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  // Lenis moves the native scroll position, so this covers both the smooth
+  // and the reduced-motion paths.
+  const { scrollY } = useScroll();
+  useMotionValueEvent(scrollY, "change", (y) => setScrolled(y > 24));
 
   useEffect(() => {
     if (!onHome) return;
@@ -62,7 +57,7 @@ export function Navbar() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-500 ${
-        scrolled ? "border-b border-line bg-bg/80 backdrop-blur-xl" : "border-b border-transparent"
+        scrolled ? "border-b border-line bg-bg/85 backdrop-blur-md" : "border-b border-transparent"
       }`}
     >
       {/* Keeps nav items legible over the hero photograph before scroll. */}

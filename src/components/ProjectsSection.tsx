@@ -5,21 +5,21 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { PROJECTS } from "@/data/portfolioData";
+import type { ProjectItem } from "@/data/portfolioData";
+import { ArrowUpRight } from "@phosphor-icons/react";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import FlowingMenu from "@/components/reactbits/FlowingMenu";
-import { ArrowUpRight } from "@phosphor-icons/react";
 
 import { getProjectCover } from "@/lib/projectMedia";
 
 const CATEGORIES = ["All", "Full-Stack Web", "IoT & Hardware", "Mobile & AI"] as const;
 type CategoryType = (typeof CATEGORIES)[number];
 
-export function ProjectsSection() {
+export function ProjectsSection({ projects }: { projects: ProjectItem[] }) {
   const [activeCategory, setActiveCategory] = useState<CategoryType>("All");
   const reduceMotion = useReducedMotion();
 
-  const filtered = PROJECTS.filter(
+  const filtered = projects.filter(
     (p) => activeCategory === "All" || p.category === activeCategory
   );
 
@@ -27,8 +27,8 @@ export function ProjectsSection() {
     <section id="projects" className="relative py-24 sm:py-36">
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
         <SectionHeading
-          title="Things I have built and shipped"
-          lead="Web platforms, real-time proctoring, field telemetry, and machine-learning models. Each one taken past the prototype stage."
+          title="Selected work"
+          lead="Web platforms, exam proctoring, field telemetry, and a few machine-learning models."
           action={
             <LayoutGroup id="work-filter">
               <div
@@ -66,6 +66,7 @@ export function ProjectsSection() {
           }
         />
 
+
         {!reduceMotion && (
           <div
             className="hidden border-t border-line lg:block"
@@ -75,7 +76,7 @@ export function ProjectsSection() {
               items={filtered.map((p) => ({
                 link: `/work/${p.id}`,
                 text: p.title,
-                image: getProjectCover(p.id, 600, 400),
+                image: getProjectCover(p, 600, 400),
               }))}
               speed={22}
               bgColor="transparent"
@@ -87,6 +88,7 @@ export function ProjectsSection() {
           </div>
         )}
 
+        {/* Touch and reduced motion get the plain list: no hover to rely on. */}
         <div className={`border-t border-line ${reduceMotion ? "" : "lg:hidden"}`}>
           <AnimatePresence mode="popLayout" initial={false}>
             {filtered.map((project, i) => (
@@ -106,14 +108,13 @@ export function ProjectsSection() {
                   <span className="absolute inset-x-0 bottom-[-1px] h-px origin-left scale-x-0 bg-accent transition-transform duration-700 ease-out group-hover:scale-x-100" />
 
                   <div className="flex items-start gap-5 lg:items-center lg:gap-12">
-                    {/* Mobile carries its own thumbnail: no hover to rely on. */}
-                    <div className="relative aspect-[4/3] w-24 shrink-0 overflow-hidden bg-surface sm:w-32">
+                                        <div className="relative aspect-[4/3] w-24 shrink-0 overflow-hidden bg-surface sm:w-32 lg:w-40">
                       <Image
-                        src={getProjectCover(project.id, 400, 300)}
+                        src={getProjectCover(project, 400, 300)}
                         alt=""
                         fill
-                        sizes="128px"
-                        className="photo object-cover"
+                        sizes="160px"
+                        className="photo object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
                       />
                     </div>
 

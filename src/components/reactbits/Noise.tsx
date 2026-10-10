@@ -63,7 +63,10 @@ const Noise: React.FC<NoiseProps> = ({
 
     window.addEventListener('resize', resize);
     resize();
-    loop();
+    // LOCAL: 0 = static grain, drawn once. A re-drawn 1024px canvas under a
+    // blend mode repaints the whole viewport on every scrolled frame.
+    if (patternRefreshInterval > 0) loop();
+    else drawGrain();
 
     return () => {
       window.removeEventListener('resize', resize);

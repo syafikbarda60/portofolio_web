@@ -66,9 +66,9 @@ export const PROJECTS: ProjectItem[] = [
     year: "2026 - Present",
     category: "Full-Stack Web",
     description:
-      "A motion-template editor for people with no motion-design background. Pick a Lottie preset, drop in your own text and logo, arrange the scene on a canvas, and export a short showcase video — no keyframing.",
+      "A motion-template editor for people with no motion-design background. Pick a Lottie preset, drop in your own text and logo, arrange the scene on a canvas, and export a short showcase video without touching a keyframe.",
     highlights: [
-      "Built the whole stack on the Next.js App Router — the API is Route Handlers in the same codebase, so there is no separate backend service to run.",
+      "Built the whole stack on the Next.js App Router. The API is Route Handlers in the same codebase, so there is no separate backend service to run.",
       "Implemented account handling end to end: registration, email OTP verification, JWT sessions, and hashed credentials against PostgreSQL.",
       "Built a canvas editor over Lottie where scenes are composed visually and rendered out to video, so the export is the product rather than a code snippet.",
     ],
@@ -88,7 +88,7 @@ export const PROJECTS: ProjectItem[] = [
     highlights: [
       "Built continuous webcam proctoring on LiveKit, keeping a live view of each participant for the whole session.",
       "Implemented focus-lockdown detection that logs every tab and window switch straight to the database, surfaced live to proctors as a violations feed.",
-      "Split the system into three coordinated services — a Laravel portal, an Express API, and a Next.js exam client — joined by single sign-on over HMAC-SHA256 signed tokens.",
+      "Split the system into three coordinated services (a Laravel portal, an Express API, and a Next.js exam client) joined by single sign-on over HMAC-SHA256 signed tokens.",
     ],
     techStack: ["Laravel", "Next.js", "Express.js", "LiveKit", "SSE", "MySQL"],
     featured: true,
@@ -138,11 +138,11 @@ export const PROJECTS: ProjectItem[] = [
     year: "2026",
     category: "IoT & Hardware",
     description:
-      "A field system that detects rat activity in rice paddies and drives ultrasonic repellers against it — solar-powered nodes reporting telemetry to a web dashboard, with thermal imaging and a CNN on the detection side.",
+      "A field system that detects rat activity in rice paddies and drives ultrasonic repellers against it: solar-powered nodes reporting telemetry to a web dashboard, with thermal imaging and a CNN on the detection side.",
     highlights: [
       "Trained a Convolutional Neural Network on MLX90640 thermal captures to separate rat activity from background heat at night.",
       "Built the field side on ESP32 and Raspberry Pi: PIR motion sensing, relay-driven ultrasonic emitters, and solar power, posting telemetry over HTTP every few minutes.",
-      "Built the Gropyok dashboard on top of it — device health, detection trends, hot-spot ranking, and event rules over PostgreSQL, polled live in the browser.",
+      "Built the Gropyok dashboard on top of it: device health, detection trends, hot-spot ranking, and event rules over PostgreSQL, polled live in the browser.",
     ],
     techStack: ["Python", "CNN", "Thermal Vision", "ESP32 / C++", "Raspberry Pi", "Next.js", "PostgreSQL", "Recharts"],
     featured: false,
@@ -312,8 +312,8 @@ export const SKILL_CATEGORIES: SkillCategory[] = [
     items: [
       { name: "React & Next.js", level: "Advanced", description: "App Router, SSR, Server Components, and reactive motion interfaces." },
       { name: "TypeScript & JavaScript", level: "Advanced", description: "Strict type safety, modern ESNext features, asynchronous patterns." },
-      { name: "Tailwind CSS", level: "Advanced", description: "Utility architecture, responsive grids, luxury dark mode styling." },
-      { name: "Motion & UI Physics", level: "Proficient", description: "Spring physics, scroll animations, spotlight effects, interactive micro-states." },
+      { name: "Tailwind CSS", level: "Advanced", description: "Responsive layouts, design tokens, light and dark theming." },
+      { name: "Motion & UI Physics", level: "Proficient", description: "Spring transitions, scroll reveals, and layout animation with Motion." },
     ],
   },
   {

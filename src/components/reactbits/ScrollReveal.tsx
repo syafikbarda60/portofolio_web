@@ -52,6 +52,10 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
 
     const scroller = scrollContainerRef && scrollContainerRef.current ? scrollContainerRef.current : window;
 
+    // LOCAL: scoped context. The original cleanup killed every ScrollTrigger
+    // on the page, including other components' ones.
+    const ctx = gsap.context(() => {
+
     gsap.fromTo(
       el,
       { transformOrigin: '0% 50%', rotate: baseRotation },
@@ -106,9 +110,9 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
       );
     }
 
-    return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    };
+    }, el);
+
+    return () => ctx.revert();
   }, [scrollContainerRef, enableBlur, baseRotation, baseOpacity, rotationEnd, wordAnimationEnd, blurStrength]);
 
   return (

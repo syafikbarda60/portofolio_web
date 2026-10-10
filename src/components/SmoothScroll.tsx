@@ -57,8 +57,8 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
       ref={lenisRef}
       options={{
         autoRaf: false,
-        lerp: 0.085,
-        wheelMultiplier: 0.9,
+        lerp: 0.1,
+        wheelMultiplier: 1,
         touchMultiplier: 1.4,
         syncTouch: false,
         // Lenis intercepts in-page #links so nav anchors ease instead of jumping.

@@ -1,4 +1,4 @@
-import { PROJECTS, type ProjectItem } from "@/data/portfolioData";
+import type { ProjectItem } from "@/data/portfolioData";
 
 /**
  * Media for a project.
@@ -13,9 +13,8 @@ const PLACEHOLDER_COUNT = 4;
 const placeholder = (id: string, i: number) =>
   `https://picsum.photos/seed/work-${id}-${i}/900/1200`;
 
-export function getProjectCover(id: string, width = 900, height = 640): string {
-  const shots = PROJECTS.find((p) => p.id === id)?.shots;
-  return shots?.[0] ?? `https://picsum.photos/seed/work-${id}/${width}/${height}`;
+export function getProjectCover(project: ProjectItem, width = 900, height = 640): string {
+  return project.shots?.[0] ?? `https://picsum.photos/seed/work-${project.id}/${width}/${height}`;
 }
 
 export function getProjectGallery(project: ProjectItem) {

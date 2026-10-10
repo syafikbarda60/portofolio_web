@@ -82,9 +82,9 @@
   --color-accent-text: var(--accent-text);
   --color-accent-ink: var(--accent-ink);
 
-  --font-display: var(--font-bricolage), "Helvetica Neue", Arial, sans-serif;
-  --font-sans: var(--font-geist), ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
+  --font-display: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", monospace;
 
   --radius-none: 0px;
 }
@@ -99,10 +99,11 @@
     background-color: var(--bg);
     color: var(--fg);
     font-family: var(--font-sans);
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
+    /* clip, not hidden: hidden turns body into a scroll container, which
+       silently breaks position: sticky (the horizontal section relies on it). */
+    overflow-x: clip;
   }
 
   ::selection {
@@ -126,32 +127,31 @@
 }
 
 @layer components {
-  /* Bricolage is variable on width and optical size. Pulling the width
-     in and the optical size up is what gives the display type its
-     compressed, editorial proportion. */
+  /* Hierarchy comes from width and weight, not from crushing the
+     tracking. Wider = louder; body text stays at the default width. */
   .type-display {
     font-family: var(--font-display);
-    font-variation-settings: "wdth" 82, "opsz" 96;
+    font-variation-settings: "wdth" 112;
     font-weight: 600;
-    line-height: 0.88;
-    letter-spacing: -0.035em;
+    line-height: 0.98;
+    letter-spacing: -0.025em;
   }
 
   .type-section {
     font-family: var(--font-display);
-    font-variation-settings: "wdth" 88, "opsz" 72;
+    font-variation-settings: "wdth" 108;
     font-weight: 600;
-    line-height: 0.95;
-    letter-spacing: -0.03em;
-    font-size: clamp(2.1rem, 5vw, 4rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    font-size: clamp(2rem, 4.2vw, 3.4rem);
   }
 
   .type-title {
     font-family: var(--font-display);
-    font-variation-settings: "wdth" 92, "opsz" 40;
+    font-variation-settings: "wdth" 104;
     font-weight: 600;
-    line-height: 1.02;
-    letter-spacing: -0.02em;
+    line-height: 1.12;
+    letter-spacing: -0.01em;
   }
 
   .type-lead {
@@ -164,7 +164,6 @@
   .type-data {
     font-family: var(--font-mono);
     font-size: 0.75rem;
-    letter-spacing: 0.02em;
     color: var(--fg-3);
     font-variant-numeric: tabular-nums;
   }

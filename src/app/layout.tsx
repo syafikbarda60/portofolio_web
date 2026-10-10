@@ -1,28 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Geist, Geist_Mono } from "next/font/google";
+import { archivo, plexMono } from "./fonts";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import "./globals.css";
-
-// Display face. Variable width + optical size, which is what the
-// compressed editorial headline proportion depends on.
-const bricolage = Bricolage_Grotesque({
-  subsets: ["latin"],
-  variable: "--font-bricolage",
-  display: "swap",
-  axes: ["opsz", "wdth"],
-});
-
-const geist = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist",
-  display: "swap",
-});
-
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-geist-mono",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Syafik Barda | Full-Stack & Backend Developer",
@@ -69,16 +48,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${bricolage.variable} ${geist.variable} ${geistMono.variable}`}
+      className={`${archivo.variable} ${plexMono.variable}`}
       suppressHydrationWarning
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
-        {/* Scroll-reveal wrappers start hidden. Without JS they would stay
-            that way, so the page falls back to plain visible content. */}
-        <noscript>
-          <style>{`.invisible { visibility: visible !important; }`}</style>
-        </noscript>
       </head>
       <body className="min-h-[100dvh] bg-bg text-fg antialiased">
         <a

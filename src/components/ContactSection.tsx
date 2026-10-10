@@ -2,6 +2,7 @@
 
 import React, { useRef, useState } from "react";
 import { Reveal } from "@/components/ui/Reveal";
+import { motion } from "motion/react";
 import Magnet from "@/components/reactbits/Magnet";
 import {
   EnvelopeSimple,
@@ -18,7 +19,7 @@ import { PERSONAL_INFO } from "@/data/portfolioData";
 type Status = "idle" | "sending" | "sent" | "error";
 
 // Web3Forms delivers submissions to syafikbarda60@gmail.com. The key is public
-// by design — it is scoped to that one destination, so it ships in the bundle.
+// by design: it is scoped to that one destination, so it ships in the bundle.
 const ACCESS_KEY = "3d600fb3-437a-46a1-8d64-0ba705b61300";
 
 export function ContactSection() {
@@ -74,14 +75,14 @@ export function ContactSection() {
   return (
     <section id="contact" className="relative py-24 sm:py-36">
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
-        <Reveal distance={48} duration={1} ease="power3.out">
-          <h2 className="type-display max-w-[14ch] text-[clamp(2.8rem,8vw,6.5rem)] text-fg">
-            Let us build something durable
+        <Reveal distance={48}>
+          <h2 className="type-display max-w-[14ch] text-[clamp(2.6rem,6.5vw,5.25rem)] text-fg">
+            Get in touch
           </h2>
         </Reveal>
 
         <div className="mt-20 grid grid-cols-1 gap-x-16 gap-y-16 lg:grid-cols-12">
-          <Reveal distance={36} duration={0.85} className="lg:col-span-5">
+          <Reveal distance={36} className="lg:col-span-5">
             <div>
               <a
                 href={`mailto:${PERSONAL_INFO.email}`}
@@ -158,13 +159,13 @@ export function ContactSection() {
               </a>
 
               <p className="mt-8 max-w-sm text-sm leading-relaxed text-fg-2">
-                Based in Semarang, Central Java. Available for internships from Q3
-                2026, remote or on site. I reply within a day.
+                Based in Semarang, Central Java. Open to internships, remote or on
+                site. I reply within a day.
               </p>
             </div>
           </Reveal>
 
-          <Reveal distance={36} duration={0.85} delay={0.08} className="lg:col-span-7">
+          <Reveal distance={36} delay={0.08} className="lg:col-span-7">
             <form onSubmit={handleSubmit} className="grid gap-10">
               <div>
                 <label
@@ -179,7 +180,7 @@ export function ContactSection() {
                   type="text"
                   required
                   autoComplete="organization"
-                  placeholder="Engineering lead at Tech Co"
+                  placeholder="Your name, and where you work"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className={fieldClass}
@@ -227,7 +228,8 @@ export function ContactSection() {
 
               <div className="flex flex-wrap items-center gap-6">
                 <Magnet padding={70} magnetStrength={5}>
-                  <button
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
                     type="submit"
                     disabled={status === "sending"}
                     className="pill group inline-flex min-h-11 cursor-pointer items-center gap-2.5 bg-fg px-8 py-4 text-sm font-medium text-bg transition-colors duration-300 hover:bg-accent hover:text-accent-ink disabled:cursor-wait disabled:opacity-60"
@@ -238,7 +240,7 @@ export function ContactSection() {
                       weight="bold"
                       className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                     />
-                  </button>
+                  </motion.button>
                 </Magnet>
 
                 <p
@@ -247,10 +249,10 @@ export function ContactSection() {
                   className="max-w-[24ch] text-[13px] leading-relaxed text-fg-3"
                 >
                   {status === "sent"
-                    ? "Message sent. I reply within a day."
+                    ? "Message sent. Thank you."
                     : status === "error"
                       ? "That did not go through. Email or WhatsApp me directly instead."
-                      : "Sent straight to my inbox. I reply within a day."}
+                      : "Goes straight to my inbox."}
                 </p>
               </div>
             </form>
@@ -281,8 +283,8 @@ export function ContactSection() {
 
           <p className="max-w-[38ch] text-sm leading-relaxed text-fg-2">
             {status === "sent"
-              ? "It landed in my inbox. I read everything and reply within a day."
-              : "Something broke on the way. Email or WhatsApp me directly — those always reach me."}
+              ? "It landed in my inbox. Expect a reply within a day."
+              : "Something broke on the way. Email or WhatsApp me directly instead."}
           </p>
 
           <button

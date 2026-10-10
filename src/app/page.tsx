@@ -1,4 +1,5 @@
 import { Ambient } from "@/components/ui/Ambient";
+import { Sparks } from "@/components/ui/Sparks";
 import { Navbar } from "@/components/Navbar";
 import { HeroSection } from "@/components/HeroSection";
 import { StackStrip } from "@/components/StackStrip";
@@ -9,9 +10,11 @@ import { ExperienceSection } from "@/components/ExperienceSection";
 import { SkillsSection } from "@/components/SkillsSection";
 import { ContactSection } from "@/components/ContactSection";
 import { Footer } from "@/components/Footer";
-import { Sparks } from "@/components/ui/Sparks";
+import { getProjects } from "@/lib/projectStore";
 
-export default function Home() {
+export default async function Home() {
+  const projects = await getProjects();
+
   return (
     <Sparks>
       <Ambient />
@@ -20,8 +23,8 @@ export default function Home() {
       <main id="main" className="relative z-10">
         <HeroSection />
         <StackStrip />
-        <ProjectsSection />
-        <Approach />
+        <ProjectsSection projects={projects} />
+        <Approach projects={projects} />
         <Capabilities />
         <ExperienceSection />
         <SkillsSection />
