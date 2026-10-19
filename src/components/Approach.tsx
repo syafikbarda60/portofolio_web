@@ -1,23 +1,21 @@
 "use client";
 
-import React from "react";
-import ScrollReveal from "@/components/reactbits/ScrollReveal";
+import React, { useRef } from "react";
+import dynamic from "next/dynamic";
+import { useScroll } from "motion/react";
+import { StoryMark } from "@/components/three/StoryField";
 import { Reveal } from "@/components/ui/Reveal";
 import { Figure } from "@/components/ui/Figure";
-import { useReducedMotion } from "@/lib/useReducedMotion";
 import { EXPERIENCES, type ProjectItem } from "@/data/portfolioData";
 
-const STATEMENT =
-  "Most of what I build leaves the laptop. Sensors in a rice field, an exam that watches every webcam and logs every tab switch, a CMS that someone else maintains after I hand it over. I build for how it runs after the demo, not just for the demo.";
-
-// Sized as the section's only element: it is read like a poster, so it is
-// allowed to be the largest type on the page after the hero name.
-const STATEMENT_CLASS =
-  "type-title text-[clamp(2.1rem,5.2vw,4.75rem)] leading-[1.08] tracking-[-0.02em] text-fg";
-
+const FieldTerrain = dynamic(
+  () => import("@/components/three/FieldTerrain").then((m) => m.FieldTerrain),
+  { ssr: false }
+);
 
 export function Approach({ projects }: { projects: ProjectItem[] }) {
-  const reduceMotion = useReducedMotion();
+  const statement = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: statement, offset: ["start end", "end start"] });
 
   // Counted from the data, so the figures stay true as projects are added.
   const FIGURES = [
@@ -38,30 +36,12 @@ export function Approach({ projects }: { projects: ProjectItem[] }) {
 
   return (
     <>
-      <section
-        id="about"
-        className="relative flex min-h-[100dvh] items-center py-24 sm:py-32"
-      >
-        <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10">
-          <div className="max-w-[64rem]">
-            {reduceMotion ? (
-              <p className={STATEMENT_CLASS}>{STATEMENT}</p>
-            ) : (
-              /* Scrubbed word reveal: the copy is the section, so the motion
-                 paces the reading rather than decorating it. */
-              <ScrollReveal
-                baseOpacity={0.08}
-                baseRotation={1.5}
-                blurStrength={5}
-                rotationEnd="bottom 70%"
-                wordAnimationEnd="bottom 60%"
-                containerClassName="!my-0"
-                textClassName="!type-title !text-[clamp(2.1rem,5.2vw,4.75rem)] !leading-[1.08] !tracking-[-0.02em] !text-fg"
-              >
-                {STATEMENT}
-              </ScrollReveal>
-            )}
-          </div>
+      {/* The field the statement (at the end of the work corridor) talks
+          about, in its own band, then the figures. */}
+      <section ref={statement} aria-label="In the field" className="relative overflow-hidden">
+        <div className="relative h-[48vh] sm:h-[60vh]">
+          <FieldTerrain progress={scrollYProgress} />
+          <StoryMark shape="ground" stage />
         </div>
       </section>
 

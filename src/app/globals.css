@@ -106,6 +106,11 @@
     overflow-x: clip;
   }
 
+  /* Skipped intro: hide the server-rendered splash before first paint. */
+  :root[data-intro="done"] .splash {
+    display: none;
+  }
+
   ::selection {
     background-color: var(--accent);
     color: var(--accent-ink);
@@ -135,6 +140,16 @@
     font-weight: 600;
     line-height: 0.98;
     letter-spacing: -0.025em;
+  }
+
+  /* Chapter openers: one per section, sized like a poster headline. */
+  .type-chapter {
+    font-family: var(--font-display);
+    font-variation-settings: "wdth" 112;
+    font-weight: 600;
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    font-size: clamp(2.9rem, 7.2vw, 6.75rem);
   }
 
   .type-section {

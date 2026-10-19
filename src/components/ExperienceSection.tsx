@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { EXPERIENCES } from "@/data/portfolioData";
+import { StoryMark } from "@/components/three/StoryField";
 
 const TABS = ["Industry", "Leadership"] as const;
 type Tab = (typeof TABS)[number];
@@ -19,43 +20,52 @@ export function ExperienceSection() {
   return (
     <section id="experience" className="relative py-24 sm:py-36">
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
-        <SectionHeading
-          title="Experience"
-          lead="Software delivery, IT operations, and running a student association."
-          action={
-            <div
-              role="tablist"
-              aria-label="Experience type"
-              className="flex items-center gap-2"
-            >
-              {TABS.map((tab) => {
-                const isActive = activeTab === tab;
-                return (
-                  <button
-                    key={tab}
-                    role="tab"
-                    aria-selected={isActive}
-                    onClick={() => setActiveTab(tab)}
-                    className={`pill relative inline-flex min-h-11 min-w-[7rem] cursor-pointer items-center justify-center px-5 text-[13px] font-medium transition-colors duration-300 ${
-                      isActive
-                        ? "text-accent-ink"
-                        : "border border-line text-fg-2 hover:border-line-strong hover:text-fg"
-                    }`}
-                  >
-                    {isActive && (
-                      <motion.span
-                        layoutId="experience-tab-pill"
-                        className="pill absolute inset-0 bg-accent"
-                        transition={{ type: "spring", stiffness: 400, damping: 36 }}
-                      />
-                    )}
-                    <span className="relative z-10">{tab}</span>
-                  </button>
-                );
-              })}
-            </div>
-          }
-        />
+        <div className="grid grid-cols-1 lg:grid-cols-12 lg:gap-10">
+          {/* Stage: the story field draws the career path here, above the title
+              on phones and beside it on desktop, never over the entries. */}
+          <div aria-hidden className="relative h-40 sm:h-48 lg:order-last lg:col-span-5 lg:h-auto lg:min-h-[20rem]">
+            <StoryMark shape="path" stage />
+          </div>
+          <div className="lg:col-span-7">
+            <SectionHeading
+              title="Experience"
+              lead="Software delivery, IT operations, and running a student association."
+              action={
+                <div
+                  role="tablist"
+                  aria-label="Experience type"
+                  className="flex items-center gap-2"
+                >
+                  {TABS.map((tab) => {
+                    const isActive = activeTab === tab;
+                    return (
+                      <button
+                        key={tab}
+                        role="tab"
+                        aria-selected={isActive}
+                        onClick={() => setActiveTab(tab)}
+                        className={`pill relative inline-flex min-h-11 min-w-[7rem] cursor-pointer items-center justify-center px-5 text-[13px] font-medium transition-colors duration-300 ${
+                          isActive
+                            ? "text-accent-ink"
+                            : "border border-line text-fg-2 hover:border-line-strong hover:text-fg"
+                        }`}
+                      >
+                        {isActive && (
+                          <motion.span
+                            layoutId="experience-tab-pill"
+                            className="pill absolute inset-0 bg-accent"
+                            transition={{ type: "spring", stiffness: 400, damping: 36 }}
+                          />
+                        )}
+                        <span className="relative z-10">{tab}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              }
+            />
+          </div>
+        </div>
 
         <AnimatePresence mode="wait">
           <motion.div

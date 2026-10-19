@@ -2,6 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    // 90 is for the hero portrait, which is shown close to its native size.
+    qualities: [75, 90],
     remotePatterns: [
       // Placeholder photography. Swap these for real shots before launch.
       { protocol: "https", hostname: "picsum.photos" },

@@ -40,6 +40,13 @@ export const viewport: Viewport = {
 // the wrong mode. Runs only if the reader has explicitly picked one.
 const THEME_INIT = `try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
 
+// The loading intro plays once per session, only when the visit starts on the
+// home page, and never under reduced motion. Decided here, before first paint,
+// so a skipped splash never flashes. Keep the key in sync with lib/intro.ts.
+// A visit that starts on another page (a project link from the CV, say) marks
+// the session as seen, so a later hard navigation home does not play it.
+const INTRO_INIT = `try{var s=sessionStorage;if(location.pathname!=="/")s.setItem("intro-seen","1");if(s.getItem("intro-seen")||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.dataset.intro="done"}catch(e){document.documentElement.dataset.intro="done"}`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -53,6 +60,11 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
+        <script dangerouslySetInnerHTML={{ __html: INTRO_INIT }} />
+        {/* Without JS the splash could never lift. */}
+        <noscript>
+          <style>{`.splash { display: none !important; }`}</style>
+        </noscript>
       </head>
       <body className="min-h-[100dvh] bg-bg text-fg antialiased">
         <a

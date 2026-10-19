@@ -1,149 +1,231 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence, LayoutGroup } from "motion/react";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import type { ProjectItem } from "@/data/portfolioData";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
 import { ArrowUpRight } from "@phosphor-icons/react";
+import { ChapterTitle } from "@/components/ui/SectionHeading";
+import type { ProjectItem } from "@/data/portfolioData";
 import { useReducedMotion } from "@/lib/useReducedMotion";
-import FlowingMenu from "@/components/reactbits/FlowingMenu";
-
 import { getProjectCover } from "@/lib/projectMedia";
+import { BEATS, StatementReveal, StatementStatic } from "@/components/StatementReveal";
+import { EXIT_START } from "@/components/three/PassageTunnel";
 
-const CATEGORIES = ["All", "Full-Stack Web", "IoT & Hardware", "Mobile & AI"] as const;
-type CategoryType = (typeof CATEGORIES)[number];
+// three.js loads only when this section mounts on the client.
+const PassageTunnel = dynamic(
+  () => import("@/components/three/PassageTunnel").then((m) => m.PassageTunnel),
+  { ssr: false }
+);
+
+const TITLE = "Selected work";
+const LEAD = "Web platforms, exam proctoring, field telemetry, and a few machine-learning models.";
+
+const ramp = (a: number, b: number, v: number) => Math.min(1, Math.max(0, (v - a) / (b - a)));
+
+/** Scroll spent travelling past each project, as a share of the viewport. */
+const PER_PROJECT_VH = 70;
+/** Scroll spent closing in on the exit, where the next section waits. */
+const APPROACH_VH = 110;
+/** Scroll spent reading the story once it fills the screen: per beat. */
+const REVEAL_VH = BEATS.length * 95;
+
+
+
+/** Plain list: the reduced-motion layout, and the screen-reader index. */
+function ProjectList({ projects }: { projects: ProjectItem[] }) {
+  return (
+    <ul className="border-t border-line">
+      {projects.map((project) => (
+        <li key={project.id}>
+          <Link
+            href={`/work/${project.id}`}
+            className="group flex items-center gap-5 border-b border-line py-6 sm:gap-8"
+          >
+            <span className="relative aspect-[16/10] w-28 shrink-0 overflow-hidden bg-surface sm:w-40">
+              <Image src={getProjectCover(project)} alt="" fill sizes="160px" className="object-cover" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="type-title block text-[clamp(1.4rem,3vw,2.4rem)] text-fg group-hover:text-accent-text">
+                {project.title}
+              </span>
+              <span className="mt-1 block text-sm text-fg-2">{project.subtitle}</span>
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export function ProjectsSection({ projects }: { projects: ProjectItem[] }) {
-  const [activeCategory, setActiveCategory] = useState<CategoryType>("All");
   const reduceMotion = useReducedMotion();
+  const router = useRouter();
+  const section = useRef<HTMLElement>(null);
+  const [active, setActive] = useState(0);
 
-  const filtered = projects.filter(
-    (p) => activeCategory === "All" || p.category === activeCategory
+  // One journey in one pinned section: the corridor, then the exit growing
+  // until it is the screen, then the statement read word by word.
+  const trip = projects.length * PER_PROJECT_VH;
+  const total = trip + APPROACH_VH + REVEAL_VH;
+  const tripEnd = trip / total;
+  const approachEnd = (trip + APPROACH_VH) / total;
+
+  const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
+  // Sliding in, before the pin: the corridor opens out of a centred window.
+  const { scrollYProgress: entering } = useScroll({ target: section, offset: ["start end", "start start"] });
+
+  // Function transforms on purpose: a range-mapped opacity here gets handed
+  // to the browser's ScrollTimeline by Motion, which misreads this pinned
+  // section's offsets and left the title showing through the whole trip.
+  const titleOpacity = useTransform(scrollYProgress, (v) => 1 - ramp(0, 0.04, v));
+  const titleY = useTransform(scrollYProgress, (v) => -40 * ramp(0, 0.04, v));
+  const captionOpacity = useTransform(
+    scrollYProgress,
+    (v) => ramp(0.025, 0.06, v) * (1 - ramp(tripEnd - 0.03, tripEnd, v))
   );
+  const enterClip = useTransform(entering, (e) => {
+    const k = 1 - e * e * (3 - 2 * e);
+    return `inset(${(k * 22).toFixed(2)}% ${(k * 30).toFixed(2)}%)`;
+  });
+
+  // The exit: it grows the way a doorway does as you walk up to it, slowly
+  // at first and then all at once (apparent size goes as 1 / distance).
+  const approach = useTransform(scrollYProgress, (v) => ramp(tripEnd, approachEnd, v));
+  const exitScale = useTransform(approach, (a) => 1 / (1 / EXIT_START - a * (1 / EXIT_START - 1)));
+  const exitEdge = useTransform(approach, (a) => 1 - ramp(0.82, 1, a));
+  // The exit opens in the end wall as the last station goes by.
+  const exitOpacity = useTransform(scrollYProgress, (v) => ramp(tripEnd - 0.025, tripEnd + 0.01, v));
+  const tunnelOpacity = useTransform(approach, (a) => 1 - ramp(0.55, 0.98, a));
+  const reveal = useTransform(scrollYProgress, (v) => ramp(approachEnd, 1 - (0.12 * REVEAL_VH) / total, v));
+
+  if (reduceMotion) {
+    return (
+      <section id="projects" className="relative py-24 sm:py-36">
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
+          <ChapterTitle>{TITLE}</ChapterTitle>
+          <p className="type-lead mb-14 mt-6">{LEAD}</p>
+          <ProjectList projects={projects} />
+        </div>
+        <div id="about" className="mx-auto max-w-[1400px] px-4 pt-24 sm:px-6 sm:pt-36 lg:px-10">
+          <StatementStatic />
+        </div>
+      </section>
+    );
+  }
+
+  const p = projects[active] ?? projects[0];
 
   return (
-    <section id="projects" className="relative py-24 sm:py-36">
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
-        <SectionHeading
-          title="Selected work"
-          lead="Web platforms, exam proctoring, field telemetry, and a few machine-learning models."
-          action={
-            <LayoutGroup id="work-filter">
-              <div
-                role="tablist"
-                aria-label="Filter projects by category"
-                className="flex flex-wrap items-center gap-1.5"
-              >
-                {CATEGORIES.map((cat) => {
-                  const isActive = activeCategory === cat;
-                  return (
-                    <button
-                      key={cat}
-                      role="tab"
-                      aria-selected={isActive}
-                      onClick={() => setActiveCategory(cat)}
-                      className={`pill relative inline-flex min-h-11 min-w-[6rem] cursor-pointer items-center justify-center px-5 text-[13px] font-medium transition-colors duration-300 ${
-                        isActive
-                          ? "text-accent-ink"
-                          : "border border-line text-fg-2 hover:border-line-strong hover:text-fg"
-                      }`}
-                    >
-                      {isActive && (
-                        <motion.span
-                          layoutId="work-filter-pill"
-                          className="pill absolute inset-0 bg-accent"
-                          transition={{ type: "spring", stiffness: 400, damping: 36 }}
-                        />
-                      )}
-                      <span className="relative z-10">{cat}</span>
-                    </button>
-                  );
-                })}
+    <section
+      ref={section}
+      id="projects"
+      className="relative"
+      style={{ height: `${100 + total}vh` }}
+    >
+      {/* Full-bleed: on desktop it steps out of the column beside the index
+          rail (lg:pl-52 on the page), so nothing frames the corridor. */}
+      <div
+        data-fullbleed
+        className="sticky top-0 h-[100dvh] w-full overflow-hidden lg:-ml-52 lg:w-[calc(100%+13rem)]"
+      >
+        <motion.div className="absolute inset-0" style={{ clipPath: enterClip, opacity: tunnelOpacity }}>
+          <PassageTunnel
+            projects={projects}
+            section={section}
+            tripEnd={tripEnd}
+            approachEnd={approachEnd}
+            onActive={setActive}
+            onOpen={(i) => router.push(`/work/${projects[i].id}`)}
+          />
+        </motion.div>
+
+        {/* The exit at the far end of the corridor is the next section itself:
+            it grows as the camera closes in until it is the whole screen, and
+            then the statement reads out word by word as the scroll goes on. */}
+        <motion.div
+          className="pointer-events-none absolute inset-0 origin-center bg-bg"
+          style={{ scale: exitScale, opacity: exitOpacity }}
+        >
+          <motion.span
+            aria-hidden
+            className="absolute inset-0 border-2 border-line-strong"
+            style={{ opacity: exitEdge }}
+          />
+          <div className="flex h-full w-full items-center lg:pl-52">
+            <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10">
+              <div className="max-w-[72rem] pt-[72px]">
+                <StatementReveal progress={reveal} />
               </div>
-            </LayoutGroup>
-          }
-        />
-
-
-        {!reduceMotion && (
-          <div
-            className="hidden border-t border-line lg:block"
-            style={{ height: `${filtered.length * 7.5}rem` }}
-          >
-            <FlowingMenu
-              items={filtered.map((p) => ({
-                link: `/work/${p.id}`,
-                text: p.title,
-                image: getProjectCover(p, 600, 400),
-              }))}
-              speed={22}
-              bgColor="transparent"
-              textColor="var(--fg)"
-              marqueeBgColor="var(--accent)"
-              marqueeTextColor="var(--accent-ink)"
-              borderColor="var(--line)"
-            />
+            </div>
           </div>
-        )}
+        </motion.div>
 
-        {/* Touch and reduced motion get the plain list: no hover to rely on. */}
-        <div className={`border-t border-line ${reduceMotion ? "" : "lg:hidden"}`}>
-          <AnimatePresence mode="popLayout" initial={false}>
-            {filtered.map((project, i) => (
-              <motion.div
-                layout
-                key={project.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+        {/* Overlays line up with the page's content column. */}
+        <div className="pointer-events-none absolute inset-0 lg:pl-52">
+          <motion.div
+            style={{ opacity: titleOpacity, y: titleY }}
+            className="mx-auto w-full max-w-[1400px] px-4 pt-[104px] sm:px-6 lg:px-10"
+          >
+            <ChapterTitle>{TITLE}</ChapterTitle>
+            <p className="type-lead mt-5">{LEAD}</p>
+          </motion.div>
+
+          <motion.div
+            style={{ opacity: captionOpacity }}
+            className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-bg via-bg/80 to-transparent pt-24 lg:pl-52"
+          >
+            <div className="mx-auto flex w-full max-w-[1400px] flex-wrap items-end justify-between gap-x-10 gap-y-5 px-4 pb-8 sm:px-6 lg:px-10 lg:pb-10">
+              <div className="min-h-[6rem] min-w-0" aria-live="polite">
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={p.id}
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <p className="type-data">
+                      {p.category}, {p.year}
+                    </p>
+                    <h3 className="type-title mt-2 text-[clamp(1.6rem,3vw,2.75rem)] text-fg">{p.title}</h3>
+                    <p className="mt-1 text-sm text-fg-2">{p.subtitle}</p>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
+              <Link
+                href={`/work/${p.id}`}
+                aria-label={`Read the ${p.title} case study`}
+                className="pill group pointer-events-auto inline-flex min-h-11 items-center gap-2 bg-fg px-6 text-sm font-medium text-bg transition-colors hover:bg-accent hover:text-accent-ink"
               >
-                <Link
-                  href={`/work/${project.id}`}
-                  aria-label={`Read about ${project.title}`}
-                  className="group relative block w-full border-b border-line py-7 text-left transition-colors duration-500 hover:border-line-strong sm:py-9"
-                >
-                  <span className="absolute inset-x-0 bottom-[-1px] h-px origin-left scale-x-0 bg-accent transition-transform duration-700 ease-out group-hover:scale-x-100" />
-
-                  <div className="flex items-start gap-5 lg:items-center lg:gap-12">
-                                        <div className="relative aspect-[4/3] w-24 shrink-0 overflow-hidden bg-surface sm:w-32 lg:w-40">
-                      <Image
-                        src={getProjectCover(project, 400, 300)}
-                        alt=""
-                        fill
-                        sizes="160px"
-                        className="photo object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
-                      />
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <h3 className="type-title text-[clamp(1.5rem,4vw,3rem)] text-fg transition-colors duration-300 group-hover:text-accent-text">
-                        {project.title}
-                      </h3>
-                      <p className="mt-2 text-sm text-fg-2 lg:mt-3">
-                        {project.subtitle}
-                      </p>
-                    </div>
-
-                    <div className="hidden shrink-0 items-baseline gap-10 lg:flex">
-                      <span className="type-data w-36">{project.category}</span>
-                      <span className="type-data w-28">{project.year}</span>
-                      <ArrowUpRight
-                        size={22}
-                        weight="light"
-                        className="text-fg-3 transition-all duration-300 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-accent-text"
-                      />
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+                Read the case study
+                <ArrowUpRight
+                  size={15}
+                  weight="bold"
+                  className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                />
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </div>
 
+      {/* Where the reading stage sits in the scroll, for #about links and the
+          index rail's active chapter. */}
+      <div
+        id="about"
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0"
+        style={{ top: `${trip + APPROACH_VH * 0.85}vh`, height: `${REVEAL_VH + 100 - APPROACH_VH * 0.15}vh` }}
+      />
+
+      {/* The corridor is a picture to assistive tech; this is the real index. */}
+      <nav aria-label="All projects" className="sr-only">
+        <ProjectList projects={projects} />
+      </nav>
     </section>
   );
 }

@@ -6,8 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowUpRight, ArrowRight } from "@phosphor-icons/react";
 import { Reveal } from "@/components/ui/Reveal";
 import { useReducedMotion } from "@/lib/useReducedMotion";
-import { useMediaQuery } from "@/lib/useMediaQuery";
-import AccordionGallery from "@/components/reactbits/AccordionGallery";
+import { Coverflow3D } from "@/components/ui/Coverflow3D";
 import SplitText from "@/components/reactbits/SplitText";
 import ScrollReveal from "@/components/reactbits/ScrollReveal";
 import Magnet from "@/components/reactbits/Magnet";
@@ -33,11 +32,6 @@ export function ProjectDetail({
   next: ProjectItem;
 }) {
   const reduceMotion = useReducedMotion();
-  const canHover = useMediaQuery("(hover: hover) and (pointer: fine)");
-  // AccordionGallery flips to a column under 520px through CSS alone, but its
-  // media sizing stays in horizontal mode, so the images end up narrower than
-  // the panels. Its own vertical orientation gets both right.
-  const narrow = useMediaQuery("(max-width: 520px)");
 
   return (
     <article className="relative pb-24 pt-32 sm:pb-36 sm:pt-40">
@@ -76,32 +70,14 @@ export function ProjectDetail({
           </Reveal>
         </header>
 
-        {/* Gallery. Hover expands on pointer devices; touch has no hover, so
-            it falls back to tap-to-expand. */}
+        {/* Gallery: real screenshots on a 3D coverflow, in colour, with a
+            full-screen view so the UI can actually be read. */}
         <Reveal distance={40} delay={0.16}>
-          <div className="mt-14">
-            <AccordionGallery
-              items={getProjectGallery(project)}
-              defaultIndex={(project.shots?.length ?? 4) < 3 ? 0 : 1}
-              expandRatio={0.52}
-              trigger={canHover ? "hover" : "click"}
-              orientation={narrow ? "vertical" : "horizontal"}
-              height={narrow ? 380 : 520}
-              gap={8}
-              radius={0}
-              tilt={6}
-              /* Previously: The page rule is that every photograph is desaturated... 
-                 Changed per user request to display colored images. */
-              grayscale={false}
-              className=""
-              // Numbered "01, 02" captions with a glowing bar read as
-              // pagination chrome; the accordion motion carries it alone.
-              showLabels={false}
-              accentColor="var(--accent)"
-              overlayColor="var(--bg)"
-              textColor="var(--fg)"
-            />
-          </div>
+          <Coverflow3D
+            className="mt-14"
+            priority
+            items={getProjectGallery(project).map((g) => ({ src: g.image, alt: g.alt }))}
+          />
         </Reveal>
 
         <div className="mt-16 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">

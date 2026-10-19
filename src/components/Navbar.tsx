@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "motion/
 import { usePathname } from "next/navigation";
 import { List, X, ArrowUpRight } from "@phosphor-icons/react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { DOCK_AT, fullBleedCoversRail } from "@/components/IndexRail";
 
 const NAV_LINKS = [
   { name: "Work", href: "#projects" },
@@ -21,13 +22,19 @@ export function Navbar() {
   const to = (hash: string) => (onHome ? hash : `/${hash}`);
 
   const [scrolled, setScrolled] = useState(false);
+  // On the home page the links hand over to the left index rail once the
+  // hero is behind the reader (desktop only; the rail is lg and up).
+  const [docked, setDocked] = useState(false);
   const [active, setActive] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
 
   // Lenis moves the native scroll position, so this covers both the smooth
   // and the reduced-motion paths.
   const { scrollY } = useScroll();
-  useMotionValueEvent(scrollY, "change", (y) => setScrolled(y > 24));
+  useMotionValueEvent(scrollY, "change", (y) => {
+    setScrolled(y > 24);
+    setDocked(onHome && y > window.innerHeight * DOCK_AT && !fullBleedCoversRail());
+  });
 
   useEffect(() => {
     if (!onHome) return;
@@ -78,7 +85,11 @@ export function Navbar() {
           Syafik Barda
         </a>
 
-        <div className="hidden items-center gap-1 md:flex">
+        <div
+          className={`hidden items-center gap-1 transition-opacity duration-300 md:flex ${
+            docked ? "lg:pointer-events-none lg:opacity-0" : ""
+          }`}
+        >
           {NAV_LINKS.map((link) => {
             const isActive = active === link.href;
             return (

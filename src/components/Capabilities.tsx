@@ -1,174 +1,126 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { useRef, useState } from "react";
+import Link from "next/link";
 import {
+  AnimatePresence,
+  LayoutGroup,
   motion,
+  useMotionValueEvent,
   useScroll,
-  useSpring,
   useTransform,
-  type MotionValue,
 } from "motion/react";
-import { SectionHeading } from "@/components/ui/SectionHeading";
+import { StoryMark, type StoryShape } from "@/components/three/StoryField";
+import { useLenis } from "lenis/react";
+import { ChapterTitle } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 
-// Real captures under /public/work/<id>/, the same source the project pages use.
-const IMG_STACK = "/work/drift/01.jpg";
-const IMG_HARDWARE = "/work/swadaya-panen/01.jpg";
-const IMG_LEAD = "/work/himaskom-profile/01.jpg";
 
-type Panel = {
+type Domain = {
+  label: string;
   title: string;
   body: string;
-  meta: string;
-  image?: string;
+  tools: string;
+  projects: { id: string; name: string }[];
 };
 
-const PANELS: Panel[] = [
+// Copy and project lists come from the project data; nothing here is new.
+const DOMAINS: Domain[] = [
   {
+    label: "Software",
     title: "Full-stack and backend",
-    body: "High-throughput apps on Next.js, React, Node, and Laravel. Secure auth, WebSocket channels, versioned REST contracts, and normalised relational schemas.",
-    meta: "Next.js, TypeScript, Laravel, MySQL",
-    image: IMG_STACK,
+    body: "Web platforms on Next.js, React, Express, and Laravel: auth, real-time channels, REST contracts, and relational schemas that other people keep running.",
+    tools: "Next.js, TypeScript, Laravel, Express, MySQL, PostgreSQL",
+    projects: [
+      { id: "creation-exam", name: "CREATION 2026 Exam" },
+      { id: "drift", name: "Drift" },
+      { id: "sitiga", name: "SITIGA" },
+      { id: "whs-portal", name: "WHS Maritime" },
+    ],
   },
   {
-    title: "Sensors, firmware, and models",
-    body: "Microcontroller firmware for agricultural telemetry, thermal imaging CNNs for pest detection, and search-and-rescue robotics research at URDC Andromeda.",
-    meta: "Swadaya Panen, NPK Analyzer, Rat Detection",
-    image: IMG_HARDWARE,
+    label: "IoT",
+    title: "Sensors and firmware",
+    body: "Microcontroller nodes for rice fields: soil NPK, microclimate, and pest telemetry, running on solar and reporting to dashboards I build on top.",
+    tools: "ESP32, C++, Raspberry Pi, NPK probes, Laravel APIs",
+    projects: [
+      { id: "swadaya-panen", name: "Swadaya Panen" },
+      { id: "npk-monitoring", name: "NPK Soil Analyzer" },
+    ],
   },
   {
-    title: "Leading a student association",
-    body: "Chief of the Organisational Management and Development Unit at HIMASKOM UNDIP for the 2025/26 term. Structural reform, KPI frameworks, and mentoring division leads through a full cycle.",
-    meta: "Chief, OM&D Unit, HIMASKOM",
-    image: IMG_LEAD,
+    label: "Machine learning",
+    title: "Models in the field",
+    body: "A convolutional neural network trained on MLX90640 thermal captures to separate rat activity from background heat at night, feeding the repeller nodes.",
+    tools: "Python, CNN, thermal vision",
+    projects: [{ id: "rat-pest-detection", name: "Thermal Rat Pest Detection" }],
   },
 ];
 
 const TITLE = "What I work on";
-const LEAD = "Three areas where the work has run in front of real users or out in the field.";
 
-function PanelCard({ panel }: { panel: Panel }) {
+// Scroll progress through the pinned section -> morph value. Each shape holds
+// for a stretch so it can be read, then travels to the next.
+const STOPS = [0, 0.22, 0.4, 0.6, 0.78, 1];
+const MORPH = [0, 0, 1, 1, 2, 2];
+// Where in the section each shape sits at rest, for the tabs to jump to.
+const REST = [0.1, 0.5, 0.9];
+const SHAPES: StoryShape[] = ["code", "chip", "net"];
+
+function DomainCopy({ domain }: { domain: Domain }) {
   return (
-    <article className="relative flex h-full flex-col justify-end overflow-hidden border border-line bg-surface p-7 sm:p-10">
-      {panel.image && (
-        <>
-          <Image
-            src={panel.image}
-            alt=""
-            fill
-            sizes="(max-width: 768px) 88vw, 62vw"
-            className="photo object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/80 to-bg/20" />
-        </>
-      )}
-      <div className="relative">
-        <h3 className="type-title text-[clamp(1.6rem,3vw,2.6rem)] text-fg">{panel.title}</h3>
-        <p className="mt-4 max-w-lg text-sm leading-relaxed text-fg-2 sm:text-[15px]">
-          {panel.body}
-        </p>
-        <p className="type-data mt-6 text-fg-2">{panel.meta}</p>
-      </div>
-    </article>
-  );
-}
-
-/**
- * One card on the horizontal track. Its 3D pose comes from how far its centre
- * sits from the viewport centre: cards turn away as they leave and face the
- * reader in the middle, and their copy rises in as they arrive.
- */
-function TrackCard({
-  panel,
-  x,
-  viewport,
-}: {
-  panel: Panel;
-  x: MotionValue<number>;
-  viewport: number;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const centre = useRef(0);
-
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    centre.current = el.offsetLeft + el.offsetWidth / 2;
-  }, [viewport]);
-
-  // -1 = one viewport to the left of centre, 0 = centred, 1 = one to the right.
-  const d = useTransform(x, (v) =>
-    viewport ? (centre.current + v - viewport / 2) / viewport : 1
-  );
-  const rotateY = useTransform(d, [-1, 0, 1], [32, 0, -32]);
-  const scale = useTransform(d, [-1, 0, 1], [0.84, 1, 0.84]);
-  const z = useTransform(d, [-1, 0, 1], [-220, 0, -220]);
-  const opacity = useTransform(d, [-1.1, -0.6, 0, 0.6, 1.1], [0, 0.55, 1, 0.55, 0]);
-  const contentOpacity = useTransform(d, [0.45, 0.1], [0, 1]);
-  const contentY = useTransform(d, [0.45, 0.1], [36, 0]);
-
-  return (
-    <motion.div
-      ref={ref}
-      style={{ rotateY, scale, z, opacity }}
-      className="h-[min(68dvh,40rem)] w-[86vw] shrink-0 md:w-[62vw] lg:w-[min(58vw,62rem)]"
-    >
-      <motion.div style={{ opacity: contentOpacity, y: contentY }} className="h-full">
-        <PanelCard panel={panel} />
-      </motion.div>
-    </motion.div>
+    <>
+      <h3 className="type-title text-[clamp(1.6rem,2.6vw,2.4rem)] text-fg">{domain.title}</h3>
+      <p className="mt-4 max-w-[46ch] text-sm leading-relaxed text-fg-2 sm:text-[15px]">
+        {domain.body}
+      </p>
+      <p className="type-data mt-5 text-fg-2">{domain.tools}</p>
+      <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2">
+        {domain.projects.map((p) => (
+          <li key={p.id}>
+            <Link
+              href={`/work/${p.id}`}
+              className="text-sm text-fg underline decoration-line-strong underline-offset-4 transition-colors hover:text-accent-text hover:decoration-accent"
+            >
+              {p.name}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 
 export function Capabilities() {
   const reduceMotion = useReducedMotion();
   const section = useRef<HTMLElement>(null);
-  const track = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ distance: 0, viewport: 0, height: 0 });
+  const lenis = useLenis();
+  const [active, setActive] = useState(0);
 
-  // The section is as tall as the horizontal travel, so one pixel scrolled
-  // down moves the track one pixel sideways.
-  useLayoutEffect(() => {
-    if (reduceMotion) return;
-    const measure = () => {
-      const t = track.current;
-      if (!t) return;
-      // Travel until the last card sits in the middle of the viewport.
-      const last = t.lastElementChild as HTMLElement | null;
-      const end = last ? last.offsetLeft + last.offsetWidth / 2 : t.scrollWidth;
-      const distance = Math.max(0, end - window.innerWidth / 2);
-      setSize({ distance, viewport: window.innerWidth, height: window.innerHeight });
-    };
-    measure();
-    const ro = new ResizeObserver(measure);
-    if (track.current) ro.observe(track.current);
-    window.addEventListener("resize", measure);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", measure);
-    };
-  }, [reduceMotion]);
+  const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
+  const target = useTransform(scrollYProgress, STOPS, MORPH);
+  useMotionValueEvent(target, "change", (v) => setActive(Math.round(v)));
 
-  const { scrollYProgress } = useScroll({
-    target: section,
-    offset: ["start start", "end end"],
-  });
-  // A light spring on top of Lenis keeps the 3D turn from tracking every
-  // wheel tick one-to-one.
-  const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 30, mass: 0.4 });
-  const x = useTransform(progress, (p) => -p * size.distance);
+  const jump = (i: number) => {
+    const el = section.current;
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY;
+    const y = top + (el.offsetHeight - window.innerHeight) * REST[i];
+    if (lenis) lenis.scrollTo(y, { duration: 1.2 });
+    else window.scrollTo({ top: y, behavior: "smooth" });
+  };
 
   if (reduceMotion) {
     return (
       <section id="focus" className="relative py-24 sm:py-36">
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
-          <SectionHeading title={TITLE} lead={LEAD} />
-          <div className="grid gap-4">
-            {PANELS.map((panel) => (
-              <Reveal key={panel.title} className="h-[26rem]">
-                <PanelCard panel={panel} />
+          <ChapterTitle className="mb-14 sm:mb-20">{TITLE}</ChapterTitle>
+          <div className="grid gap-16">
+            {DOMAINS.map((d) => (
+              <Reveal key={d.label}>
+                <p className="type-data mb-3">{d.label}</p>
+                <DomainCopy domain={d} />
               </Reveal>
             ))}
           </div>
@@ -178,28 +130,71 @@ export function Capabilities() {
   }
 
   return (
-    <section
-      ref={section}
-      id="focus"
-      className="relative"
-      style={{ height: size.height ? size.distance + size.height : "300vh" }}
-    >
-      <div className="sticky top-0 flex h-[100dvh] flex-col justify-center overflow-hidden [perspective:1400px]">
-        <motion.div
-          ref={track}
-          style={{ x }}
-          className="flex items-center gap-[4vw] pl-4 [transform-style:preserve-3d] sm:pl-6 lg:pl-10"
-        >
-          {/* Intro sits flat on the track and slides away first. */}
-          <div className="w-[80vw] shrink-0 md:w-[34vw]">
-            <h2 className="type-section max-w-[12ch] text-fg">{TITLE}</h2>
-            <p className="type-lead mt-6">{LEAD}</p>
+    <section ref={section} id="focus" className="relative h-[340vh]">
+      {/* The story field takes each shape as its rest point reaches mid-screen. */}
+      {SHAPES.map((shape, i) => (
+        <StoryMark key={shape} shape={shape} at={`calc(${REST[i]} * (100% - 100vh) + 50vh)`} />
+      ))}
+      <div className="sticky top-0 flex h-[100dvh] flex-col overflow-hidden pt-[88px]">
+        <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10">
+          <ChapterTitle>{TITLE}</ChapterTitle>
+        </div>
+
+        <div className="mx-auto grid min-h-0 w-full max-w-[1400px] flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_auto] px-4 pb-8 sm:px-6 lg:grid-cols-12 lg:grid-rows-1 lg:items-center lg:px-10 lg:pb-12">
+          {/* Stage for the story field's shape (it lives behind the page). */}
+          <div className="relative min-h-[40dvh] lg:col-span-8 lg:h-full">
+            {/* A faint pool of light under the object grounds it in space. */}
+            <div
+              aria-hidden
+              className="absolute bottom-[8%] left-1/2 h-[16%] w-[62%] -translate-x-1/2 rounded-[50%] bg-[radial-gradient(closest-side,var(--accent-wash),transparent)] blur-md"
+            />
+
           </div>
 
-          {PANELS.map((panel) => (
-            <TrackCard key={panel.title} panel={panel} x={x} viewport={size.viewport} />
-          ))}
-        </motion.div>
+          <div className="lg:col-span-4">
+            <LayoutGroup id="domain-tabs">
+              <div role="tablist" aria-label="Areas of work" className="mb-6 flex flex-wrap gap-1.5 lg:mb-8">
+                {DOMAINS.map((d, i) => {
+                  const on = active === i;
+                  return (
+                    <button
+                      key={d.label}
+                      role="tab"
+                      aria-selected={on}
+                      onClick={() => jump(i)}
+                      className={`pill relative inline-flex min-h-11 cursor-pointer items-center px-4 text-[13px] font-medium transition-colors duration-300 ${
+                        on ? "text-accent-ink" : "border border-line text-fg-2 hover:border-line-strong hover:text-fg"
+                      }`}
+                    >
+                      {on && (
+                        <motion.span
+                          layoutId="domain-tab"
+                          className="pill absolute inset-0 bg-accent"
+                          transition={{ type: "spring", stiffness: 400, damping: 36 }}
+                        />
+                      )}
+                      <span className="relative">{d.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </LayoutGroup>
+
+            <div className="relative min-h-[15rem] sm:min-h-[16rem]" aria-live="polite">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={active}
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <DomainCopy domain={DOMAINS[active]} />
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

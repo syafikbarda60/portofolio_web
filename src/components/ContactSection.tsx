@@ -2,6 +2,8 @@
 
 import React, { useRef, useState } from "react";
 import { Reveal } from "@/components/ui/Reveal";
+import { ChapterTitle } from "@/components/ui/SectionHeading";
+import { SENT_EVENT, StoryMark } from "@/components/three/StoryField";
 import { motion } from "motion/react";
 import Magnet from "@/components/reactbits/Magnet";
 import {
@@ -60,6 +62,7 @@ export function ContactSection() {
       });
       if (!res.ok) throw new Error(String(res.status));
       setStatus("sent");
+      window.dispatchEvent(new Event(SENT_EVENT));
       setName("");
       setEmail("");
       setMessage("");
@@ -75,11 +78,13 @@ export function ContactSection() {
   return (
     <section id="contact" className="relative py-24 sm:py-36">
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
-        <Reveal distance={48}>
-          <h2 className="type-display max-w-[14ch] text-[clamp(2.6rem,6.5vw,5.25rem)] text-fg">
-            Get in touch
-          </h2>
-        </Reveal>
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+          <ChapterTitle>Get in touch</ChapterTitle>
+          {/* Stage: the story field folds into a paper plane here. */}
+          <div aria-hidden className="relative h-44 w-full shrink-0 sm:h-52 sm:w-80 lg:h-[20rem] lg:w-[30rem]">
+            <StoryMark shape="plane" stage />
+          </div>
+        </div>
 
         <div className="mt-20 grid grid-cols-1 gap-x-16 gap-y-16 lg:grid-cols-12">
           <Reveal distance={36} className="lg:col-span-5">
