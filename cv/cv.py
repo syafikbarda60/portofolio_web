@@ -1,8 +1,9 @@
 """Single source of truth for Syafik Barda's CV.
 
-Run `python cv/cv.py` to regenerate both outputs in this folder:
-  - Syafik_Barda_CV.tex   -> compile with pdflatex (works as-is on Overleaf)
-  - Syafik_Barda_CV.docx  -> the matching Word version
+Run `python cv/cv.py` to regenerate the outputs in this folder:
+  - Syafik_Barda_CV.tex           -> compile with pdflatex (works as-is on Overleaf)
+  - Syafik_Barda_CV.docx          -> the matching Word version (full CV, served by the site)
+  - Syafik_Barda_CV_Frontend.docx -> two-page cut for frontend / full-stack internships
 
 Content mirrors src/data/portfolioData.ts so the CV and the portfolio site
 never disagree. Edit the data below, rerun, both files update together.
@@ -23,6 +24,7 @@ TAGLINE = "Computer Engineering Student | Full-Stack & IoT Developer"
 CONTACT = ["Semarang, Indonesia", "+62 838-6919-3470", "syafikbarda60@gmail.com"]
 LINKS = [
     ("github.com/syafikbarda60", "https://github.com/syafikbarda60"),
+    ("linkedin.com/in/syafik-barda-7077573ab", "https://www.linkedin.com/in/syafik-barda-7077573ab/"),
     ("portofolio-web-five-hazel.vercel.app", "https://portofolio-web-five-hazel.vercel.app/"),
 ]
 
@@ -46,7 +48,7 @@ def entry(head, subs=(), bullets=(), tech=""):
 EXPERIENCE = [
     entry(
         ("PT WHS Maritime Investments", "South Jakarta, Indonesia"),
-        [("Website Developer", "Jun 2025 - Aug 2025")],
+        [("Web Developer Intern", "Jun 2025 - Jul 2025")],
         [
             "Revamped the company digital presence by building a modern, performant company profile "
             "website aligned with PT WHS Maritime Investments brand identity.",
@@ -80,7 +82,7 @@ ORGANIZATIONAL = [
         ],
         [
             "Implemented a structural reform by establishing the Monitoring and Upgrading Division to "
-            "oversee and raise the performance of all HIMASKOM 25 members.",
+            "oversee and raise the performance of all HIMASKOM 120+ members.",
             "Served as Head of the Evaluation and Achievement Division, assessing work programs across "
             "every field and unit within HIMASKOM 24.",
             "Supervised and improved the performance of MIKATAN HIMASKOM 24, mentoring division heads "
@@ -205,7 +207,7 @@ CERTIFICATIONS = [
 
 EDUCATION = [
     entry(("Diponegoro University", "Semarang, Indonesia"),
-          [("Bachelor of Computer Engineering - GPA: 3.85 / 4.00", "Aug 2023 - Present")]),
+          [("Bachelor of Computer Engineering - GPA: 3.85 / 4.00", "Aug 2023 - Aug 2027 (expected)")]),
 ]
 
 ADDITIONAL = [
@@ -230,6 +232,59 @@ SECTIONS = [
     ("Projects", PROJECTS),
     ("Leadership and Certification", CERTIFICATIONS),
     ("Education", EDUCATION),
+    ("Additional", ADDITIONAL),
+]
+
+# Two pages for frontend / full-stack internships: education and skills up top,
+# then the web work first and the hardware side folded into one dashboards entry.
+FRONTEND_TAGLINE = "Computer Engineering Student | Frontend & Full-Stack Developer"
+FRONTEND_SUMMARY = (
+    "Computer Engineering student at Diponegoro University (GPA 3.85/4.00) seeking a frontend or "
+    "full-stack internship. I build React and Next.js interfaces together with the Express and Laravel "
+    "APIs behind them, and have shipped them for an industry client, the CREATION 2026 event, and field "
+    "IoT systems. As Chief of HIMASKOM's Organizational Management and Development Unit, I oversaw the "
+    "performance of a 120+ member student association."
+)
+FRONTEND_SECTIONS = [
+    ("Education", EDUCATION),
+    ("Skills", [
+        ("Frontend",
+         "React, Next.js, TypeScript, JavaScript, HTML, CSS, Tailwind CSS, Motion, GSAP, three.js, "
+         "Material UI, Chakra UI"),
+        ("Backend", "Node.js / Express, Laravel / PHP, REST APIs, SSE, JWT authentication, LiveKit"),
+        ("Mobile", "React Native, Expo"),
+        ("Data & Tools", "PostgreSQL, MySQL, Supabase, Git"),
+        ("Other", "Python, C++, ESP32 firmware, Raspberry Pi, sensor integration"),
+        ADDITIONAL[3],  # soft skills
+        ADDITIONAL[4],  # languages
+    ]),
+    ("Experience", EXPERIENCE),
+    ("Projects", [
+        PROJECTS[0],  # Drift
+        PROJECTS[1],  # CREATION 2026 Exam
+        PROJECTS[2],  # SITIGA
+        PROJECTS[4],  # HIMASKOM website
+        entry(
+            ("Portfolio Website - portofolio-web-five-hazel.vercel.app", "2026"),
+            bullets=[
+                "Built a scroll-driven portfolio where one three.js point cloud morphs from chapter to "
+                "chapter, with a WebGL gallery of real project screenshots and a reduced-motion layout that "
+                "keeps every section readable without animation.",
+            ],
+            tech="Next.js, React, TypeScript, Tailwind CSS, three.js, Motion, GSAP, Lenis",
+        ),
+        PROJECTS[7],  # ExpenseTracker
+        entry(
+            ("IoT Monitoring Dashboards - Swadaya Panen, NPK Monitoring, Rat Pest Detection", "2025 - 2026"),
+            bullets=[
+                "Built the web dashboards for three field IoT systems: live sensor telemetry with threshold "
+                "alarms, nutrient aggregates with harvest logging, and device health with hot-spot ranking.",
+            ],
+            tech="React, Next.js, Vite, Chakra UI, Material UI, Recharts, Laravel, PostgreSQL, MySQL",
+        ),
+    ]),
+    ("Organizational Experience", ORGANIZATIONAL),
+    ("Leadership and Certification", CERTIFICATIONS),
 ]
 
 # --------------------------------------------------------------------------- LaTeX
@@ -276,22 +331,28 @@ def tex(s):
     return out.replace(" - ", " -- ")
 
 
-def build_tex(path):
+def build_tex(path, tagline=TAGLINE, summary=SUMMARY, sections=SECTIONS):
     L = [TEX_PREAMBLE, r"\begin{document}", ""]
     L.append(r"\begin{center}")
     L.append(r"{\LARGE\bfseries " + tex(NAME) + r"}\\[0.35em]")
-    L.append(r"{\small " + tex(TAGLINE) + r"}\\[0.25em]")
+    L.append(r"{\small " + tex(tagline) + r"}\\[0.25em]")
     L.append(r"{\small " + r" $\cdot$ ".join(tex(c) for c in CONTACT) + r"}\\[0.25em]")
     links = r" $\cdot$ ".join(r"\href{%s}{%s}" % (url, tex(label)) for label, url in LINKS)
     L.append(r"{\small " + links + "}")
     L.append(r"\end{center}")
     L.append("")
     L.append(r"\section{Summary}")
-    L.append(tex(SUMMARY))
+    L.append(tex(summary))
     L.append("")
 
-    for title, entries in SECTIONS:
+    for title, entries in sections:
         L.append(r"\section{" + tex(title) + "}")
+        if isinstance(entries[0], tuple):  # label: value lines (skills, languages)
+            L.append(r"\begin{bullets}")
+            L += [r"  \item \textbf{%s:} %s" % (tex(k), tex(v)) for k, v in entries]
+            L.append(r"\end{bullets}")
+            L.append("")
+            continue
         for e in entries:
             L.append(r"\entryhead{%s}{%s}" % (tex(e["head"][0]), tex(e["head"][1])))
             for role, period in e["subs"]:
@@ -305,11 +366,6 @@ def build_tex(path):
             L.append(r"\vspace{0.55em}")
         L.append("")
 
-    L.append(r"\section{Additional}")
-    L.append(r"\begin{bullets}")
-    L += [r"  \item \textbf{%s:} %s" % (tex(k), tex(v)) for k, v in ADDITIONAL]
-    L.append(r"\end{bullets}")
-    L.append("")
     L.append(r"\end{document}")
 
     with open(path, "w", encoding="utf-8") as f:
@@ -318,20 +374,23 @@ def build_tex(path):
 
 # --------------------------------------------------------------------------- DOCX
 
-def build_docx(path):
+def build_docx(path, tagline=TAGLINE, summary=SUMMARY, sections=SECTIONS, compact=False):
+    """compact: narrower margins and spacing, for the one-page cut. Type size stays 10pt."""
     from docx import Document
     from docx.shared import Pt, Cm
     from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT
     from docx.oxml.ns import qn
     from docx.oxml import OxmlElement
+    from docx.opc.constants import RELATIONSHIP_TYPE as RT
 
     def dash(s):
         return s.replace(" - ", " – ")
 
     doc = Document()
     sec = doc.sections[0]
-    sec.top_margin = sec.bottom_margin = Cm(1.5)
-    sec.left_margin = sec.right_margin = Cm(1.5)
+    sec.page_width, sec.page_height = Cm(21), Cm(29.7)  # A4, like the .tex
+    margin = Cm(1.27 if compact else 1.5)
+    sec.top_margin = sec.bottom_margin = sec.left_margin = sec.right_margin = margin
     right_edge = sec.page_width - sec.left_margin - sec.right_margin
 
     normal = doc.styles["Normal"]
@@ -339,7 +398,7 @@ def build_docx(path):
     normal.font.size = Pt(10)
     normal.element.rPr.rFonts.set(qn("w:eastAsia"), "Calibri")
     normal.paragraph_format.space_after = Pt(0)
-    normal.paragraph_format.line_spacing = 1.05
+    normal.paragraph_format.line_spacing = 1.0 if compact else 1.05
 
     def para(space_after=0, space_before=0):
         p = doc.add_paragraph()
@@ -364,7 +423,8 @@ def build_docx(path):
         return p
 
     def heading(text):
-        p = para(space_after=3, space_before=9)
+        p = para(space_after=3, space_before=7 if compact else 9)
+        p.paragraph_format.keep_with_next = True
         run(p, text, bold=True, size=11, caps=True)
         pbdr = OxmlElement("w:pBdr")
         bottom = OxmlElement("w:bottom")
@@ -377,25 +437,42 @@ def build_docx(path):
         p = doc.add_paragraph(style="List Bullet")
         p.paragraph_format.left_indent = Cm(0.5)
         p.paragraph_format.first_line_indent = Cm(-0.3)
-        p.paragraph_format.space_after = Pt(1)
-        p.paragraph_format.line_spacing = 1.05
+        p.paragraph_format.space_after = Pt(0 if compact else 1)
+        p.paragraph_format.line_spacing = normal.paragraph_format.line_spacing
         return p
 
     p = para(space_after=2)
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run(p, NAME, bold=True, size=20)
-    links = "  ·  ".join(label for label, _ in LINKS)
-    for line in (TAGLINE, "  ·  ".join(CONTACT), links):
+    for line in (tagline, "  ·  ".join(CONTACT)):
         p = para(space_after=1)
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         run(p, line, size=9.5)
 
-    heading("Summary")
-    run(para(space_after=2), SUMMARY)
+    # Links as real hyperlinks, so they stay clickable in the exported PDF.
+    p = para(space_after=1)
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    for i, (label, url) in enumerate(LINKS):
+        if i:
+            run(p, "  ·  ", size=9.5)
+        link = OxmlElement("w:hyperlink")
+        link.set(qn("r:id"), p.part.relate_to(url, RT.HYPERLINK, is_external=True))
+        link.append(run(p, label, size=9.5)._r)  # moves the run inside the link
+        p._p.append(link)
 
-    for title, entries in SECTIONS:
+    heading("Summary")
+    run(para(space_after=2), summary)
+
+    for title, entries in sections:
         heading(title)
+        if isinstance(entries[0], tuple):  # label: value lines (skills, languages)
+            for k, v in entries:
+                p = bullet()
+                run(p, k + ": ", bold=True)
+                run(p, v)
+            continue
         for e in entries:
+            first = len(doc.paragraphs)
             tabbed(e["head"][0], e["head"][1], bold=True)
             for role, period in e["subs"]:
                 tabbed(role, period, italic=True)
@@ -405,13 +482,11 @@ def build_docx(path):
                 p = para()
                 run(p, "Tech: ", bold=True, size=9.5)
                 run(p, e["tech"], size=9.5)
-            para(space_after=5)
-
-    heading("Additional")
-    for k, v in ADDITIONAL:
-        p = bullet()
-        run(p, k + ": ", bold=True)
-        run(p, v)
+            for q in doc.paragraphs[first:]:  # an entry never splits across pages
+                q.paragraph_format.keep_with_next = True
+            gap = para(space_after=0 if compact else 5)
+            if compact:  # a 5pt gap instead of a full blank line
+                gap.paragraph_format.line_spacing = Pt(5)
 
     doc.save(path)
 
@@ -420,8 +495,10 @@ if __name__ == "__main__":
     here = os.path.dirname(os.path.abspath(__file__))
     tex_path = os.path.join(here, "Syafik_Barda_CV.tex")
     docx_path = os.path.join(here, "Syafik_Barda_CV.docx")
+    frontend_path = os.path.join(here, "Syafik_Barda_CV_Frontend.docx")
     build_tex(tex_path)
     build_docx(docx_path)
+    build_docx(frontend_path, FRONTEND_TAGLINE, FRONTEND_SUMMARY, FRONTEND_SECTIONS, compact=True)
 
     # ponytail: one sanity check instead of a test suite -- unescaped LaTeX
     # specials and a dropped section are the only ways this breaks silently.
@@ -434,3 +511,4 @@ if __name__ == "__main__":
     assert os.path.getsize(docx_path) > 8000
     print("wrote", tex_path)
     print("wrote", docx_path)
+    print("wrote", frontend_path)

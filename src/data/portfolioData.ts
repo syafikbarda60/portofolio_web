@@ -45,7 +45,7 @@ export const PERSONAL_INFO = {
   phone: "+6283869193470",
   whatsappUrl: "https://wa.me/6283869193470",
   github: "https://github.com/syafikbarda60",
-  linkedin: "https://linkedin.com",
+  linkedin: "https://www.linkedin.com/in/syafik-barda-7077573ab/",
   availability: "Available for Internship & Full-Stack Opportunities",
   bio: "Computer Engineering undergraduate at Diponegoro University with strong expertise in full-stack web architectures, IoT engineering, and backend systems. Experienced in leading organizational governance as Chief of Organizational Management & Development Unit at HIMASKOM, balancing software craft with strategic execution.",
 };
@@ -233,8 +233,8 @@ export const PROJECTS: ProjectItem[] = [
 export const EXPERIENCES: ExperienceItem[] = [
   {
     company: "PT WHS Maritime Investments",
-    role: "Website Developer",
-    period: "Jun 2025 - Aug 2025",
+    role: "Web Developer Intern",
+    period: "Jun 2025 - Jul 2025",
     location: "South Jakarta, Indonesia",
     type: "Work Experience",
     summary:
@@ -348,7 +348,7 @@ export const SKILL_CATEGORIES: SkillCategory[] = [
 export const EDUCATION_INFO = {
   institution: "Diponegoro University (UNDIP)",
   location: "Semarang, Indonesia",
-  period: "Aug 2023 - Present",
+  period: "Aug 2023 - Aug 2027 (expected)",
   degree: "Bachelor of Computer Engineering (S.T.)",
   gpa: "3.85 / 4.0",
   achievements: [

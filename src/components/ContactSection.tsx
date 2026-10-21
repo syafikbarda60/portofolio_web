@@ -9,6 +9,7 @@ import Magnet from "@/components/reactbits/Magnet";
 import {
   EnvelopeSimple,
   WhatsappLogo,
+  LinkedinLogo,
   Copy,
   Check,
   ArrowUpRight,
@@ -135,6 +136,27 @@ export function ContactSection() {
                     className="shrink-0 text-fg-3 transition-colors group-hover:text-accent-text"
                   />
                   <span className="text-[15px] text-fg">{PERSONAL_INFO.phone}</span>
+                </span>
+                <ArrowUpRight
+                  size={18}
+                  weight="light"
+                  className="text-fg-3 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent-text"
+                />
+              </a>
+
+              <a
+                href={PERSONAL_INFO.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center justify-between gap-4 border-b border-line py-6"
+              >
+                <span className="flex items-center gap-4">
+                  <LinkedinLogo
+                    size={20}
+                    weight="light"
+                    className="shrink-0 text-fg-3 transition-colors group-hover:text-accent-text"
+                  />
+                  <span className="text-[15px] text-fg">LinkedIn</span>
                 </span>
                 <ArrowUpRight
                   size={18}

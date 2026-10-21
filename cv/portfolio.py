@@ -26,7 +26,7 @@ SHOTS = os.path.join(REPO, "public", "work")
 NAME = "Syafik Barda"
 ROLE = "Frontend Developer"
 CONTACT = "Semarang, Indonesia  ·  +62 838-6919-3470  ·  syafikbarda60@gmail.com"
-LINKS = "portofolio-web-five-hazel.vercel.app  ·  github.com/syafikbarda60"
+LINKS = "portofolio-web-five-hazel.vercel.app  ·  github.com/syafikbarda60  ·  linkedin.com/in/syafik-barda-7077573ab"
 
 INTRO = (
     "I build interfaces that hold up in production: motion-heavy marketing sites, real-time "
